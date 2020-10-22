@@ -1,4 +1,4 @@
-package com.example.notas
+package com.example.notas.data
 
 class Tabla_nota {
     val nombre_tabla: String = "Notas"

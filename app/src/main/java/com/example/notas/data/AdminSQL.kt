@@ -3,20 +3,28 @@ package com.example.notas.data
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import com.example.notas.Tabla_nota
 
 class AdminSQL(
     context: Context?
 ) : SQLiteOpenHelper(context, "notasTareas", null, 1) {
     override fun onCreate(baseDatos: SQLiteDatabase?) {
-        val query: String = "CREATE TABLE ${Tabla_nota().nombre_tabla} (" +
+        val query_nota: String = "CREATE TABLE ${Tabla_nota().nombre_tabla} (" +
                 "${Tabla_nota().campo_id} INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "${Tabla_nota().campo_nombre} VARCHAR(30)," +
                 "${Tabla_nota().campo_descripcion} VARCHAR(200) );"
-        baseDatos?.execSQL(query)
+        baseDatos?.execSQL(query_nota)
+        val query_foto: String = "CREATE TABLE ${Tabla_foto().nombre_tabla} (" +
+                "${Tabla_foto().campo_id} INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "${Tabla_foto().campo_idNota} INTEGER," +
+                "${Tabla_foto().campo_descripcion} VARCHAR(200)," +
+                "${Tabla_foto().campo_foto} BLOB," +
+                "FOREIGN KEY(${Tabla_foto().campo_idNota}) REFERENCES ${Tabla_nota().nombre_tabla} (${Tabla_nota().campo_id}) );"
+        baseDatos?.execSQL(query_foto)
     }
 
-    override fun onUpgrade(p0: SQLiteDatabase?, p1: Int, p2: Int) {
-        TODO("Not yet implemented")
+    override fun onUpgrade(db: SQLiteDatabase?, p1: Int, p2: Int) {
+        db?.execSQL("DROP TABLE IF EXISTS ${Tabla_foto().nombre_tabla}");
+        db?.execSQL("DROP TABLE IF EXISTS ${Tabla_nota().nombre_tabla}");
+        onCreate(db);
     }
 }

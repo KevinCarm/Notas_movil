@@ -1,12 +1,9 @@
 package com.example.notas
 
+import android.graphics.Bitmap
 import android.widget.ImageView
+import androidx.core.view.drawToBitmap
 
-class Foto(var description: String, var Photo: ImageView) {
-
-    var array: ArrayList<Foto>  = ArrayList()
-    fun obtenerImagenes(foto: Foto): ArrayList<Foto>{
-        array.add(foto)
-        return array
-    }
+class Foto(var idFoto: Int, var idNota: Int,var description: String, var Photo: Bitmap) {
+    constructor(description: String,Photo: Bitmap):this(0,0,description,Photo)
 }

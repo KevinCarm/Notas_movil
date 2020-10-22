@@ -1,6 +1,7 @@
 package com.example.notas
 
 import android.app.Activity
+import android.app.Dialog
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
@@ -8,12 +9,15 @@ import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import com.example.notas.data.daoFoto
 import com.example.notas.data.daoNota
 
 // TODO: Rename parameter arguments, choose names that match
@@ -39,8 +43,7 @@ class fragment_agregar_nota : Fragment() {
     private lateinit var fragmentManag: FragmentManager
     private lateinit var fragmentTransaction: FragmentTransaction
 
-    private  var nombre_imagen: ArrayList<String> = ArrayList()
-
+    private var imagenes: ArrayList<Foto> = ArrayList()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,45 +72,82 @@ class fragment_agregar_nota : Fragment() {
     }
 
 
-    private fun ObjectsSetOnClick(){
-        botonGuardar.setOnClickListener {
-            try{
-                context?.let { it1 -> daoNota(it1).insert(
+    private fun agregarNota_BD(){
+        try {
+            context?.let { it1 ->
+                daoNota(it1).insert(
                     Nota(
                         txtNombre.text.toString(),
                         txtDescripcion.text.toString()
                     )
-                ) }
-                Toast.makeText(context, "Agregados ", Toast.LENGTH_SHORT).show()
-            } catch (e: Exception){
-                Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+                )
+            }
+
+        } catch (e: Exception) {
+            Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun agregarFotos_BD(){
+        Toast.makeText(context, "Cantidad ${imagenes.size} ", Toast.LENGTH_SHORT).show()
+        imagenes.forEach {
+            context?.let { it1 -> daoFoto(it1).insert(it) }
+        }
+    }
+    private fun ObjectsSetOnClick() {
+        botonGuardar.setOnClickListener {
+            try{
+                agregarNota_BD()
+                agregarFotos_BD()
+            }catch (e:Exception){
+                Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
             }
         }
         agregar_desde_camara.setOnClickListener {
-            val capturarFoto: capturar_foto = capturar_foto()
+//            val capturarFoto: capturar_foto = capturar_foto()
+//
+//            val fragmentTransaction = fragmentManager!!.beginTransaction()
+//
+//            fragmentManager!!.beginTransaction().replace(
+//                R.id.contenedor_pequeño, capturarFoto
+//            ).addToBackStack(null).commit()
+            val intent: Intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            startActivityForResult(intent, CAMERA_REQUEST)
 
-            val fragmentTransaction = fragmentManager!!.beginTransaction()
 
-            fragmentManager!!.beginTransaction().replace(
-                R.id.contenedor_pequeño, capturarFoto
-            ).addToBackStack(null).commit()
         }
     }
 
-    private fun obtener_desde_camara(){
-        val intent: Intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        startActivityForResult(intent, CAMERA_REQUEST)
+    fun custom_dialog(ima: Bitmap) {
+        val dialog: Dialog? = context?.let { Dialog(it) }
+        dialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog?.setContentView(R.layout.dialog_custom)
+
+        val imagen: ImageView? = dialog?.findViewById(R.id.custom_image)
+        val descripcion: EditText? = dialog?.findViewById(R.id.custom_description)
+        val boton: Button? = dialog?.findViewById(R.id.custom_button)
+        boton?.setOnClickListener {
+
+            imagenes.add(Foto(descripcion?.text.toString(),ima))
+            Toast.makeText(context,"Guardada correctamente",Toast.LENGTH_SHORT).show()
+            dialog.hide()
+        }
+        imagen!!.setImageBitmap(ima)
+        boton?.isEnabled = true
+        dialog.show()
     }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if(requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK){
+        if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
             val cPhoto = data!!.extras?.get("data") as Bitmap
+            custom_dialog(cPhoto)
         }
     }
-
 
     companion object {
         private val CAMERA_REQUEST = 123
+
         /**
          * Use this factory method to create a new instance of
          * this fragment using the provided parameters.

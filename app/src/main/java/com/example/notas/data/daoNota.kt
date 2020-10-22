@@ -5,7 +5,6 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.widget.Toast
 import com.example.notas.Nota
-import com.example.notas.Tabla_nota
 import java.lang.Exception
 
 class daoNota(
@@ -19,6 +18,7 @@ class daoNota(
                     "VALUES('${nota.titulo}', '${nota.descripcion}' );"
         try{
             base.execSQL(query)
+            Toast.makeText(contexto, "Nota agregada ", Toast.LENGTH_SHORT).show()
             return true
         } catch (e: Exception){
             Toast.makeText(contexto, e.message, Toast.LENGTH_SHORT).show()
@@ -37,9 +37,11 @@ class daoNota(
             while(cursor.moveToNext()){
                 listaNotas.add(Nota(cursor.getInt(0),cursor.getString(1),cursor.getString(2)))
             }
+            cursor.close()
         }catch (e: Exception){
             Toast.makeText(contexto, e.message, Toast.LENGTH_SHORT).show()
         }
+
         return listaNotas;
     }
 }

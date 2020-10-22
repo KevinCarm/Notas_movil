@@ -1,8 +1,8 @@
 package com.example.notas
 
 class Nota(
-    var titulo: String, var descripcion: String
+    var idNota: Int, var titulo: String, var descripcion: String
 ) {
-    constructor( idNota: Int, titulo: String, descripcion: String):this(titulo, descripcion)
+    constructor(titulo: String, descripcion: String):this(0,titulo, descripcion)
 
 }
