@@ -16,13 +16,13 @@ class daoNota(
             "INSERT INTO ${Tabla_nota().nombre_tabla} (" +
                     "${Tabla_nota().campo_nombre},${Tabla_nota().campo_descripcion}) " +
                     "VALUES('${nota.titulo}', '${nota.descripcion}' );"
-        try{
+        return try{
             base.execSQL(query)
             Toast.makeText(contexto, "Nota agregada ", Toast.LENGTH_SHORT).show()
-            return true
+            true
         } catch (e: Exception){
             Toast.makeText(contexto, e.message, Toast.LENGTH_SHORT).show()
-            return false
+            false
         }finally {
             base.close()
         }

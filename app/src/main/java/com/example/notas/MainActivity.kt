@@ -1,5 +1,6 @@
 package com.example.notas
 
+import android.content.ContentResolver
 import android.content.Context
 import android.os.Bundle
 import android.view.MenuItem
@@ -15,6 +16,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import com.google.android.material.navigation.NavigationView
+import java.util.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private lateinit var drawerLayout: DrawerLayout
@@ -52,6 +54,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             fragmentTransaction.commit()
 
     }
+
+   fun changeFragment(obj: mostrar_imagenes){
+       fragmentManager = supportFragmentManager
+       fragmentTransaction = fragmentManager.beginTransaction()
+       fragmentTransaction.replace(R.id.contenedor_pequeño, obj)
+       fragmentTransaction.commit()
+   }
+
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         drawerLayout.closeDrawer(GravityCompat.START)

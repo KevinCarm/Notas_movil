@@ -1,9 +1,16 @@
 package com.example.notas
 
+import android.Manifest
 import android.app.Activity
 import android.app.Dialog
+import android.content.ContentResolver
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
+import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.LayoutInflater
@@ -14,11 +21,13 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import com.example.notas.data.daoFoto
 import com.example.notas.data.daoNota
+import java.io.InputStream
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -42,8 +51,15 @@ class fragment_agregar_nota : Fragment() {
     private lateinit var agregar_desde_camara: Button
     private lateinit var fragmentManag: FragmentManager
     private lateinit var fragmentTransaction: FragmentTransaction
+    private lateinit var btn_verImagen: Button
+    private lateinit var activity: MainActivity
 
     private var imagenes: ArrayList<Foto> = ArrayList()
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        activity = context as MainActivity
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,6 +81,7 @@ class fragment_agregar_nota : Fragment() {
         txtDescripcion = vista.findViewById(R.id.txtAgregarDescripcion)
         agregar_archivo = vista.findViewById(R.id.agregar_archivo)
         agregar_desde_camara = vista.findViewById(R.id.agregar_camara)
+        btn_verImagen = vista.findViewById(R.id.btn_verImagen)
 
         ObjectsSetOnClick()
 
@@ -72,7 +89,7 @@ class fragment_agregar_nota : Fragment() {
     }
 
 
-    private fun agregarNota_BD(){
+    private fun agregarNota_BD() {
         try {
             context?.let { it1 ->
                 daoNota(it1).insert(
@@ -88,35 +105,41 @@ class fragment_agregar_nota : Fragment() {
         }
     }
 
-    private fun agregarFotos_BD(){
+    private fun agregarFotos_BD() {
         Toast.makeText(context, "Cantidad ${imagenes.size} ", Toast.LENGTH_SHORT).show()
         imagenes.forEach {
             context?.let { it1 -> daoFoto(it1).insert(it) }
         }
     }
+
     private fun ObjectsSetOnClick() {
         botonGuardar.setOnClickListener {
-            try{
+            try {
                 agregarNota_BD()
                 agregarFotos_BD()
-            }catch (e:Exception){
+            } catch (e: Exception) {
                 Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
             }
         }
         agregar_desde_camara.setOnClickListener {
-//            val capturarFoto: capturar_foto = capturar_foto()
-//
-//            val fragmentTransaction = fragmentManager!!.beginTransaction()
-//
-//            fragmentManager!!.beginTransaction().replace(
-//                R.id.contenedor_pequeño, capturarFoto
-//            ).addToBackStack(null).commit()
             val intent: Intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             startActivityForResult(intent, CAMERA_REQUEST)
-
-
+        }
+        agregar_archivo.setOnClickListener {
+            val intent = Intent(Intent.ACTION_PICK)
+            intent.type = "image/*"
+            intent.action = Intent.ACTION_GET_CONTENT
+            startActivityForResult(Intent.createChooser(intent, "Select Image"), GALLERY_REQUEST)
+        }
+        btn_verImagen.setOnClickListener {
+            val mostrar: mostrar_imagenes = mostrar_imagenes()
+            val bundle: Bundle = Bundle()
+            bundle.putParcelableArrayList("list", imagenes)
+            mostrar.arguments = bundle
+            activity.changeFragment(mostrar)
         }
     }
+
 
     fun custom_dialog(ima: Bitmap) {
         val dialog: Dialog? = context?.let { Dialog(it) }
@@ -128,8 +151,8 @@ class fragment_agregar_nota : Fragment() {
         val boton: Button? = dialog?.findViewById(R.id.custom_button)
         boton?.setOnClickListener {
 
-            imagenes.add(Foto(descripcion?.text.toString(),ima))
-            Toast.makeText(context,"Guardada correctamente",Toast.LENGTH_SHORT).show()
+            imagenes.add(Foto(descripcion?.text.toString(), ima))
+            Toast.makeText(context, "Guardada correctamente", Toast.LENGTH_SHORT).show()
             dialog.hide()
         }
         imagen!!.setImageBitmap(ima)
@@ -143,10 +166,38 @@ class fragment_agregar_nota : Fragment() {
             val cPhoto = data!!.extras?.get("data") as Bitmap
             custom_dialog(cPhoto)
         }
+        if (requestCode == GALLERY_REQUEST && resultCode == Activity.RESULT_OK) {
+            val selectedPhotoUri = data?.data
+            try {
+                selectedPhotoUri?.let {
+                    if (Build.VERSION.SDK_INT < 28) {
+                        val bitmap = MediaStore.Images.Media.getBitmap(
+                            getActivity()?.contentResolver,
+                            it
+                        )
+                        custom_dialog(bitmap)
+                    } else {
+                        val source = getActivity()?.contentResolver?.let { it1 ->
+                            ImageDecoder.createSource(
+                                it1, it
+                            )
+                        }
+                        val bitmap = source?.let { it1 -> ImageDecoder.decodeBitmap(it1) }
+                        if (bitmap != null) {
+                            custom_dialog(bitmap)
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
+
 
     companion object {
         private val CAMERA_REQUEST = 123
+        private val GALLERY_REQUEST = 124
 
         /**
          * Use this factory method to create a new instance of

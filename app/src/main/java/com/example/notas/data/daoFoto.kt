@@ -1,11 +1,9 @@
 package com.example.notas.data
 
-import android.R.attr.bitmap
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
-import android.database.sqlite.SQLiteStatement
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.widget.Toast
@@ -21,7 +19,7 @@ class daoFoto(
 ) {
     fun insert(foto: Foto): Boolean {
         val baos = ByteArrayOutputStream(20480)
-        foto.Photo.compress(Bitmap.CompressFormat.PNG, 0, baos)
+        foto.Photo?.compress(Bitmap.CompressFormat.PNG, 0, baos)
         val blob = baos.toByteArray()
 
         return try{
@@ -44,7 +42,7 @@ class daoFoto(
         base = database.readableDatabase
         val listaFotos: ArrayList<Foto> = ArrayList()
         try {
-            val readQuery: String = "SELECT * FROM ${Tabla_foto().nombre_tabla}"
+            val readQuery = "SELECT * FROM ${Tabla_foto().nombre_tabla}"
             val cursor: Cursor = base.rawQuery(readQuery, null)
             while (cursor.moveToNext()) {
                 val blob = cursor.getBlob(3)
