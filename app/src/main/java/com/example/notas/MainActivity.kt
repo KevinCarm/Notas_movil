@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         actionBarDrawerToggle.syncState()
         // CARGAR FRAGMENT PRINCIPAL
             fragmentManager = supportFragmentManager
-            fragmentTransaction = fragmentManager.beginTransaction()
+            fragmentTransaction = fragmentManager.beginTransaction().addToBackStack(null)
             fragmentTransaction.add(R.id.contenedor_pequeño, fragment_agregar_nota())
             fragmentTransaction.commit()
 
@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 if (findViewById<View?>(R.id.contenedor_pequeño) != null
                 ) {
                     fragmentManager = supportFragmentManager
-                    fragmentTransaction = fragmentManager.beginTransaction()
+                    fragmentTransaction = fragmentManager.beginTransaction().addToBackStack(null)
                     fragmentTransaction.replace(R.id.contenedor_pequeño, fragment_ver_notas())
                     fragmentTransaction.commit()
                 }

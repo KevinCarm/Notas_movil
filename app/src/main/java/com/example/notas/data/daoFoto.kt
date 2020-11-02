@@ -68,7 +68,7 @@ class daoFoto(
         base = database.readableDatabase
         val listaNotas: ArrayList<Nota> = ArrayList()
         try {
-            val readQuery: String = "SELECT * FROM ${Tabla_nota().nombre_tabla}"
+            val readQuery: String = "SELECT * FROM ${Tabla_nota.nombre_tabla}"
             val cursor: Cursor = base.rawQuery(readQuery, null)
             while (cursor.moveToNext()) {
                 listaNotas.add(Nota(cursor.getInt(0), cursor.getString(1), cursor.getString(2)))

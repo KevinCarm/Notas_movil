@@ -13,8 +13,8 @@ class daoNota(
 ) {
     fun insert(nota: Nota): Boolean{
         val query: String =
-            "INSERT INTO ${Tabla_nota().nombre_tabla} (" +
-                    "${Tabla_nota().campo_nombre},${Tabla_nota().campo_descripcion}) " +
+            "INSERT INTO ${Tabla_nota.nombre_tabla} (" +
+                    "${Tabla_nota.campo_nombre},${Tabla_nota.campo_descripcion}) " +
                     "VALUES('${nota.titulo}', '${nota.descripcion}' );"
         return try{
             base.execSQL(query)
@@ -32,7 +32,7 @@ class daoNota(
         base = database.readableDatabase
         val listaNotas: ArrayList<Nota> = ArrayList()
         try{
-            val readQuery: String = "SELECT * FROM ${Tabla_nota().nombre_tabla}"
+            val readQuery: String = "SELECT * FROM ${Tabla_nota.nombre_tabla}"
             val cursor: Cursor =  base.rawQuery(readQuery,null)
             while(cursor.moveToNext()){
                 listaNotas.add(Nota(cursor.getInt(0),cursor.getString(1),cursor.getString(2)))
@@ -43,5 +43,17 @@ class daoNota(
         }
 
         return listaNotas;
+    }
+
+    fun getOneById(id: Int): Nota?{
+        base = database.readableDatabase
+        val readQuery = "SELECT * FROM ${Tabla_nota.nombre_tabla} " +
+                "WHERE ${Tabla_nota.campo_id} = '${id}'"
+        val cursor: Cursor = base.rawQuery(readQuery,null)
+        if(cursor.moveToNext()){
+            return Nota(cursor.getInt(0),cursor.getString(1),cursor.getString(2))
+        }else{
+            return null
+        }
     }
 }

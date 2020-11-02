@@ -88,7 +88,6 @@ class fragment_agregar_nota : Fragment() {
         return vista
     }
 
-
     private fun agregarNota_BD() {
         try {
             context?.let { it1 ->

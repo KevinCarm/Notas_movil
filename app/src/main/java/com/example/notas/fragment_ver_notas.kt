@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -56,6 +57,10 @@ class fragment_ver_notas : Fragment() {
         layoutManager = GridLayoutManager(context, 1)
         recyclerView.layoutManager = layoutManager
         val adapter = context?.let { daoNota(it).getAll()?.let { it1 -> adaptador_notas(it, it1) } }
+        adapter?.setOnclickListener{vi1 ->
+          val select_note = context?.let { daoNota(it).getOneById((recyclerView.getChildAdapterPosition(vi1) + 1)) }
+            Toast.makeText(context,select_note!!.titulo,Toast.LENGTH_LONG).show()
+        }
 
         recyclerView.adapter = adapter
         return vista

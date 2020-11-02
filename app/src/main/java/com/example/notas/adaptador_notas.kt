@@ -4,7 +4,6 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
@@ -13,6 +12,11 @@ class adaptador_notas(
     val listaNotas: ArrayList<Nota>
 ): RecyclerView.Adapter<adaptador_notas.ViewHolder>() {
 
+    lateinit var onClickListener: View.OnClickListener
+
+    fun setOnclickListener(onclickListener: View.OnClickListener) {
+        this.onClickListener = onclickListener
+    }
 
     var inflador: LayoutInflater =
         contexto.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -27,14 +31,15 @@ class adaptador_notas(
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): adaptador_notas.ViewHolder {
-        val view: View = inflador.inflate(R.layout.item_recycle, null)
+        val view: View = inflador.inflate(R.layout.item_recycle_notas, null)
+        view.setOnClickListener(onClickListener)
         return ViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: adaptador_notas.ViewHolder, position: Int) {
-        val nota: Nota = listaNotas[position]
-        holder.titulo.setText(nota.titulo)
-        holder.descripcion.setText(nota.descripcion)
+        val note: Nota = listaNotas[position]
+        holder.titulo.text = "Titulo: " + note.titulo
+        holder.descripcion.text = "Descripcion: "+note.descripcion
     }
 
     override fun getItemCount(): Int {
