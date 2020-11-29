@@ -1,13 +1,8 @@
 package com.example.notas
-
-import android.content.ContentResolver
-import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.view.MenuItem
-import android.view.Surface
 import android.view.View
-import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -17,8 +12,6 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import com.google.android.material.navigation.NavigationView
-import java.lang.Exception
-import java.util.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private lateinit var drawerLayout: DrawerLayout
@@ -66,12 +59,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
 
-   fun changeFragment(obj: mostrar_imagenes){
-       fragmentManager = supportFragmentManager
-       fragmentTransaction = fragmentManager.beginTransaction()
-       fragmentTransaction.replace(R.id.contenedor_pequeño, obj)
-       fragmentTransaction.commit()
-   }
+
     fun changeFragmentAddNote(obj: fragment_agregar_nota){
         try {
             fragmentManager = supportFragmentManager
@@ -82,7 +70,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             Toast.makeText(applicationContext,e.message,Toast.LENGTH_SHORT).show()
         }
     }
-
+    fun changeFragmentViewNote(obj: ver_nota_seleccionada){
+        try{
+            fragmentManager = supportFragmentManager
+            fragmentTransaction = fragmentManager.beginTransaction().addToBackStack(null)
+            fragmentTransaction.replace(R.id.contenedor_pequeño, obj)
+            fragmentTransaction.commit()
+        }catch (e: Exception){
+            Toast.makeText(applicationContext,e.message,Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         drawerLayout.closeDrawer(GravityCompat.START)

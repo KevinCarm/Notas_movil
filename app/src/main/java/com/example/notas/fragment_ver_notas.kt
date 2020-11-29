@@ -58,10 +58,14 @@ class fragment_ver_notas : Fragment(),
         layoutManager = GridLayoutManager(context, 1)
         recyclerView.layoutManager = layoutManager
         val adapter = context?.let { daoNota(it).getAll()?.let { it1 -> adaptador_notas(it, it1) } }
-        adapter?.setOnclickListener { vi1 ->
-            val select_note =
-                context?.let { daoNota(it).getOneById((recyclerView.getChildAdapterPosition(vi1) + 1)) }
-        }
+        adapter?.setOnclickListener(View.OnClickListener {
+            val id: Int = recyclerView.getChildLayoutPosition(it) + 1
+            val bundle = Bundle()
+            bundle.putInt("idNota",id)
+            val viewNota = ver_nota_seleccionada()
+            viewNota.arguments = bundle
+            mainActivity.changeFragmentViewNote(viewNota)
+        })
         recyclerView.adapter = adapter
         return vista
     }
