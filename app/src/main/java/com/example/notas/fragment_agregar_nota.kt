@@ -76,29 +76,7 @@ class fragment_agregar_nota : Fragment(),
     ): View? {
         // Inflate the layout for this fragment
         vista = inflater.inflate(R.layout.fragment_agregar_nota, container, false)
-        if (getActivity()?.let {
-                ContextCompat.checkSelfPermission(
-                    it,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                )
-            } !== PackageManager.PERMISSION_GRANTED && getActivity()?.let {
-                ActivityCompat.checkSelfPermission(
-                    it,
-                    Manifest.permission.RECORD_AUDIO
-                )
-            } != PackageManager.PERMISSION_GRANTED
-        ) {
-            getActivity()?.let {
-                ActivityCompat.requestPermissions(
-                    it,
-                    arrayOf(
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        Manifest.permission.RECORD_AUDIO
-                    ),
-                    1000
-                )
-            }
-        }
+
         initialize(vista)
         return vista
     }
