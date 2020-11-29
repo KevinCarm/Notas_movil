@@ -1,5 +1,6 @@
 package com.example.notas
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -24,13 +25,14 @@ private const val ARG_PARAM2 = "param2"
  * create an instance of this fragment.
  */
 class ver_nota_seleccionada : Fragment(),
-    PopupMenu.OnMenuItemClickListener{
+    PopupMenu.OnMenuItemClickListener {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
     private lateinit var title: EditText
     private lateinit var description: EditText
     private lateinit var btnAccept: Button
+    private lateinit var activity: MainActivity
     private lateinit var floating: com.google.android.material.floatingactionbutton.FloatingActionButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,6 +43,11 @@ class ver_nota_seleccionada : Fragment(),
         }
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        activity = context as MainActivity
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -49,12 +56,12 @@ class ver_nota_seleccionada : Fragment(),
         val id: Int? = bundle?.getInt("idNota")
         val vista = inflater.inflate(R.layout.fragment_ver_nota_seleccionada, container, false)
         if (id != null) {
-            initialize(vista,id)
+            initialize(vista, id)
         }
         return vista
     }
 
-    private fun initialize(root: View, id: Int){
+    private fun initialize(root: View, id: Int) {
         floating = root.findViewById(R.id.floatingShowResourcesNote)
         title = root.findViewById(R.id.txtViewTitleNote)
         description = root.findViewById(R.id.txtViewDescriptionNote)
@@ -68,7 +75,11 @@ class ver_nota_seleccionada : Fragment(),
             popup.setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.item_view_images -> {
-                        Toast.makeText(context,"Ver imagen",Toast.LENGTH_SHORT).show()
+                        val bundle = Bundle()
+                        bundle.putInt("idImagen", id)
+                        val verImagen: fragment_ver_imagenes = fragment_ver_imagenes()
+                        verImagen.arguments = bundle
+                        activity.changeFragmentViewImages(verImagen)
                         return@OnMenuItemClickListener true
                     }
                     R.id.item_add_from_camera -> {

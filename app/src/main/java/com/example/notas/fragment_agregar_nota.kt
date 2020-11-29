@@ -114,20 +114,24 @@ class fragment_agregar_nota : Fragment(),
             val popup: PopupMenu = PopupMenu(getActivity(), floating)
             popup.menuInflater.inflate(R.menu.popup_menu, popup.menu)
             popup.setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener { item ->
-                when (item.itemId) {
-                    R.id.item_add_from_gallery -> {
-                        takeImageFromGallery()
-                        return@OnMenuItemClickListener true
-                    }
-                    R.id.item_add_from_camera -> {
-                        takePicture()
-                        return@OnMenuItemClickListener true
-                    }
-                    R.id.item_save_photo -> {
-                        custom_dialog()
-                        return@OnMenuItemClickListener true
-                    }
-                }
+               try {
+                   when (item.itemId) {
+                       R.id.item_add_from_gallery -> {
+                           takeImageFromGallery()
+                           return@OnMenuItemClickListener true
+                       }
+                       R.id.item_add_from_camera -> {
+                           takePicture()
+                           return@OnMenuItemClickListener true
+                       }
+                       R.id.item_save_photo -> {
+                           custom_dialog()
+                           return@OnMenuItemClickListener true
+                       }
+                   }
+               }catch (e: Exception){
+                   Toast.makeText(context,e.message,Toast.LENGTH_SHORT).show()
+               }
                 true
             })
             popup.show()
