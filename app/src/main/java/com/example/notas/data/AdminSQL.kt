@@ -20,6 +20,11 @@ class AdminSQL(
                 "${Tabla_foto().campo_foto} BLOB," +
                 "FOREIGN KEY(${Tabla_foto().campo_idNota}) REFERENCES ${Tabla_nota.nombre_tabla} (${Tabla_nota.campo_id}) );"
         baseDatos?.execSQL(query_foto)
+        val queryTabla_RecursosNota: String = "CREATE TABLE ${Tabla_RecursosNota.nombre_tabla} ( " +
+                "${Tabla_RecursosNota.campo_idNota} INTEGER PRIMARY KEY," +
+                "${Tabla_RecursosNota.campo_uri} TEXT NOT NULL," +
+                "${Tabla_RecursosNota.campo_tipo} VARCHAR(10) );"
+        baseDatos?.execSQL(queryTabla_RecursosNota)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, p1: Int, p2: Int) {

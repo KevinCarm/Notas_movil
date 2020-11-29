@@ -3,6 +3,7 @@ package com.example.notas
 import android.content.ContentResolver
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
 import android.view.MenuItem
 import android.view.Surface
 import android.view.View
@@ -16,6 +17,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import com.google.android.material.navigation.NavigationView
+import java.lang.Exception
 import java.util.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -23,7 +25,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
     private lateinit var toolBar: Toolbar
     private lateinit var navigationView: NavigationView
-
+    private lateinit var handler: Handler
     //VARIABLES PARA CARGAR EL FRAGMENT
     private lateinit var fragmentManager: FragmentManager
     private lateinit var fragmentTransaction: FragmentTransaction
@@ -50,10 +52,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // CARGAR FRAGMENT PRINCIPAL
             fragmentManager = supportFragmentManager
             fragmentTransaction = fragmentManager.beginTransaction().addToBackStack(null)
-            fragmentTransaction.add(R.id.contenedor_pequeño, fragment_agregar_nota())
+            fragmentTransaction.add(R.id.contenedor_pequeño, fragment_ver_notas())
             fragmentTransaction.commit()
+        handler = Handler()
+        notification()
 
     }
+
+    private fun notification(){
+        handler.postDelayed(Runnable {
+            Toast.makeText(this,"Hola",Toast.LENGTH_SHORT).show()
+        },1000)
+    }
+
 
    fun changeFragment(obj: mostrar_imagenes){
        fragmentManager = supportFragmentManager
@@ -61,6 +72,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
        fragmentTransaction.replace(R.id.contenedor_pequeño, obj)
        fragmentTransaction.commit()
    }
+    fun changeFragmentAddNote(obj: fragment_agregar_nota){
+        try {
+            fragmentManager = supportFragmentManager
+            fragmentTransaction = fragmentManager.beginTransaction().addToBackStack(null)
+            fragmentTransaction.replace(R.id.contenedor_pequeño, obj)
+            fragmentTransaction.commit()
+        }catch (e: Exception){
+            Toast.makeText(applicationContext,e.message,Toast.LENGTH_SHORT).show()
+        }
+    }
 
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -83,16 +104,4 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return false
     }
 
-    fun estado(context: Context) {
-        val rotation =
-            (context.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay.orientation
-        when (rotation) {
-            Surface.ROTATION_0 -> {
-                Toast.makeText(applicationContext, "Vertical", Toast.LENGTH_SHORT).show()
-            }
-            Surface.ROTATION_90 -> {
-                Toast.makeText(applicationContext, "Horizontal", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
 }

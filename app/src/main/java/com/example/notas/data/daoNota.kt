@@ -2,6 +2,7 @@ package com.example.notas.data
 
 import android.content.Context
 import android.database.Cursor
+import android.database.SQLException
 import android.database.sqlite.SQLiteDatabase
 import android.widget.Toast
 import com.example.notas.Nota
@@ -54,6 +55,20 @@ class daoNota(
             return Nota(cursor.getInt(0),cursor.getString(1),cursor.getString(2))
         }else{
             return null
+        }
+    }
+    fun getLastId(): Int{
+        base = database.readableDatabase
+        try{
+            val query = "SELECT * FROM ${Tabla_nota.nombre_tabla}"
+            val cursor: Cursor = base.rawQuery(query,null)
+            cursor.moveToLast()
+            val id = cursor.getInt(0)
+            cursor.close()
+            return id
+        }catch (e: SQLException){
+            Toast.makeText(contexto,e.message,Toast.LENGTH_SHORT).show()
+            return 0
         }
     }
 }

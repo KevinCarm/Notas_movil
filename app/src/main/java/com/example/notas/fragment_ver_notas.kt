@@ -3,12 +3,11 @@ package com.example.notas
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageView
+import android.widget.PopupMenu
 import android.widget.Toast
-import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -24,7 +23,8 @@ private const val ARG_PARAM2 = "param2"
  * Use the [fragment_ver_notas.newInstance] factory method to
  * create an instance of this fragment.
  */
-class fragment_ver_notas : Fragment() {
+class fragment_ver_notas : Fragment(),
+    PopupMenu.OnMenuItemClickListener {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
@@ -32,8 +32,7 @@ class fragment_ver_notas : Fragment() {
     var layoutManager: RecyclerView.LayoutManager? = null
     private lateinit var recyclerView: RecyclerView
     private lateinit var mainActivity: MainActivity
-    private lateinit var imagen_agregar_archivo: Button
-    private lateinit var imagen_agregar_camara: Button
+    private lateinit var floating_button: com.google.android.material.floatingactionbutton.FloatingActionButton
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -53,17 +52,27 @@ class fragment_ver_notas : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val vista = inflater.inflate(R.layout.fragment_ver_notas, container, false)
+        floating_button = vista.findViewById(R.id.float_ver_notas)
+        popupMenu(vista)
         recyclerView = vista.findViewById(R.id.recycle_notas)
         layoutManager = GridLayoutManager(context, 1)
         recyclerView.layoutManager = layoutManager
         val adapter = context?.let { daoNota(it).getAll()?.let { it1 -> adaptador_notas(it, it1) } }
-        adapter?.setOnclickListener{vi1 ->
-          val select_note = context?.let { daoNota(it).getOneById((recyclerView.getChildAdapterPosition(vi1) + 1)) }
-            Toast.makeText(context,select_note!!.titulo,Toast.LENGTH_LONG).show()
+        adapter?.setOnclickListener { vi1 ->
+            val select_note =
+                context?.let { daoNota(it).getOneById((recyclerView.getChildAdapterPosition(vi1) + 1)) }
         }
-
         recyclerView.adapter = adapter
         return vista
+    }
+
+    private fun popupMenu(vista: View): Unit {
+        floating_button.setOnClickListener {
+            val popup: PopupMenu = PopupMenu(activity, floating_button)
+            popup.setOnMenuItemClickListener(this)
+            popup.inflate(R.menu.popup_menu_agregar)
+            popup.show()
+        }
     }
 
     companion object {
@@ -84,5 +93,18 @@ class fragment_ver_notas : Fragment() {
                     putString(ARG_PARAM2, param2)
                 }
             }
+    }
+
+    override fun onMenuItemClick(item: MenuItem?): Boolean {
+        when (item?.itemId) {
+            R.id.menu_agregar_nota -> {
+                mainActivity.changeFragmentAddNote(fragment_agregar_nota())
+                return true
+            }
+            R.id.menu_agregar_tarea -> {
+                return true
+            }
+        }
+        return false
     }
 }

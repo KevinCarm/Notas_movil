@@ -3,31 +3,30 @@ package com.example.notas
 import android.Manifest
 import android.app.Activity
 import android.app.Dialog
-import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.ImageDecoder
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.Window
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.Toast
-import androidx.core.content.ContextCompat.checkSelfPermission
+import android.view.*
+import android.widget.*
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
-import com.example.notas.data.daoFoto
+import com.example.notas.data.RecursosNota
 import com.example.notas.data.daoNota
-import java.io.InputStream
+import com.example.notas.data.daoRecursosNota
+import java.io.File
+import java.io.IOException
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -39,28 +38,27 @@ private const val ARG_PARAM2 = "param2"
  * Use the [fragment_agregar_nota.newInstance] factory method to
  * create an instance of this fragment.
  */
-class fragment_agregar_nota : Fragment() {
+class fragment_agregar_nota : Fragment(),
+    PopupMenu.OnMenuItemClickListener {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
     private lateinit var vista: View
-    private lateinit var txtNombre: EditText
-    private lateinit var txtDescripcion: EditText
-    private lateinit var botonGuardar: Button
-    private lateinit var agregar_archivo: Button
-    private lateinit var agregar_desde_camara: Button
+    private lateinit var title: EditText
+    private lateinit var description: EditText
+    private lateinit var btnSave: Button
     private lateinit var fragmentManag: FragmentManager
     private lateinit var fragmentTransaction: FragmentTransaction
-    private lateinit var btn_verImagen: Button
+    private lateinit var floating: com.google.android.material.floatingactionbutton.FloatingActionButton
     private lateinit var activity: MainActivity
-
-    private var imagenes: ArrayList<Foto> = ArrayList()
+    private lateinit var listaRecursos: ArrayList<RecursosNota>
+    private lateinit var imagen: ImageView
+    private var images: ArrayList<Foto> = ArrayList()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         activity = context as MainActivity
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,133 +68,205 @@ class fragment_agregar_nota : Fragment() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
         vista = inflater.inflate(R.layout.fragment_agregar_nota, container, false)
-        botonGuardar = vista.findViewById(R.id.btAgregarNota)
-        txtNombre = vista.findViewById(R.id.txtAgregarTitulo)
-        txtDescripcion = vista.findViewById(R.id.txtAgregarDescripcion)
-        agregar_archivo = vista.findViewById(R.id.agregar_archivo)
-        agregar_desde_camara = vista.findViewById(R.id.agregar_camara)
-        btn_verImagen = vista.findViewById(R.id.btn_verImagen)
-
-        ObjectsSetOnClick()
-
+        if (getActivity()?.let {
+                ContextCompat.checkSelfPermission(
+                    it,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+            } !== PackageManager.PERMISSION_GRANTED && getActivity()?.let {
+                ActivityCompat.checkSelfPermission(
+                    it,
+                    Manifest.permission.RECORD_AUDIO
+                )
+            } != PackageManager.PERMISSION_GRANTED
+        ) {
+            getActivity()?.let {
+                ActivityCompat.requestPermissions(
+                    it,
+                    arrayOf(
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.RECORD_AUDIO
+                    ),
+                    1000
+                )
+            }
+        }
+        initialize(vista)
         return vista
     }
 
-    private fun agregarNota_BD() {
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun initialize(root: View) {
+        listaRecursos = ArrayList<RecursosNota>()
+        title = root.findViewById(R.id.txtNoteTitle)
+        description = root.findViewById(R.id.txtDescriptionNote)
+        btnSave = root.findViewById(R.id.btnAddNote)
+        floating = root.findViewById(R.id.floatingNote)
+        floating.setOnClickListener {
+            val popup: PopupMenu = PopupMenu(getActivity(), floating)
+            popup.menuInflater.inflate(R.menu.popup_menu, popup.menu)
+            popup.setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.item_add_from_gallery -> {
+                        takeImageFromGallery()
+                        return@OnMenuItemClickListener true
+                    }
+                    R.id.item_add_from_camera -> {
+                        takePicture()
+                        return@OnMenuItemClickListener true
+                    }
+                    R.id.item_save_photo -> {
+                        custom_dialog()
+                        return@OnMenuItemClickListener true
+                    }
+                }
+                true
+            })
+            popup.show()
+        }
+        btnSave.setOnClickListener {
+            addNote()
+            addResourcesToDB()
+        }
+    }
+
+
+    private fun takePicture() {
+        val intent: Intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        // if (intent.resolveActivity(getActivity()!!.packageManager) != null) {
+        var imageFile: File? = null
         try {
-            context?.let { it1 ->
-                daoNota(it1).insert(
+            imageFile = createImage()
+        } catch (e: IOException) {
+            Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+        }
+        if (imageFile != null) {
+            val uriImage: Uri? = getActivity()?.let {
+                FileProvider.getUriForFile(
+                    it,
+                    "com.example.notas.fileprovider",
+                    imageFile
+                )
+            }
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, uriImage)
+        }
+        startActivityForResult(intent, CAMERA_REQUEST)
+        //}
+    }
+
+    var rute: String = ""
+
+    @Throws(IOException::class)
+    private fun createImage(): File {
+        val imageName = "foto_"
+        val directory: File? = getActivity()!!.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val image = File.createTempFile(imageName, ".jpg", directory)
+        rute = image.absolutePath
+        Toast.makeText(context, rute, Toast.LENGTH_SHORT).show()
+        return image
+    }
+
+
+    private fun addNote() {
+        try {
+            context?.let {
+                daoNota(it).insert(
                     Nota(
-                        txtNombre.text.toString(),
-                        txtDescripcion.text.toString()
+                        title.text.toString(),
+                        description.text.toString()
                     )
                 )
             }
-
         } catch (e: Exception) {
-            Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
         }
     }
 
-    private fun agregarFotos_BD() {
-        Toast.makeText(context, "Cantidad ${imagenes.size} ", Toast.LENGTH_SHORT).show()
-        imagenes.forEach {
-            context?.let { it1 -> daoFoto(it1).insert(it) }
-        }
-    }
-
-    private fun ObjectsSetOnClick() {
-        botonGuardar.setOnClickListener {
-            try {
-                agregarNota_BD()
-                agregarFotos_BD()
-            } catch (e: Exception) {
-                Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
+    private fun addResourcesToDB() {
+        try {
+            listaRecursos.forEach {
+                context?.let { context ->
+                    daoRecursosNota(context)
+                        .insert(it)
+                }
             }
-        }
-        agregar_desde_camara.setOnClickListener {
-            val intent: Intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            startActivityForResult(intent, CAMERA_REQUEST)
-        }
-        agregar_archivo.setOnClickListener {
-            val intent = Intent(Intent.ACTION_PICK)
-            intent.type = "image/*"
-            intent.action = Intent.ACTION_GET_CONTENT
-            startActivityForResult(Intent.createChooser(intent, "Select Image"), GALLERY_REQUEST)
-        }
-        btn_verImagen.setOnClickListener {
-            val mostrar: mostrar_imagenes = mostrar_imagenes()
-            val bundle: Bundle = Bundle()
-            bundle.putParcelableArrayList("list", imagenes)
-            mostrar.arguments = bundle
-            activity.changeFragment(mostrar)
+        } catch (e: Exception) {
+            Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
         }
     }
 
+    private fun takeImageFromGallery() {
+        val intent = Intent()
+        intent.type = "image/*"
+        intent.action = Intent.ACTION_GET_CONTENT
+        startActivityForResult(
+            Intent.createChooser(intent, "Seleccione una imagen"),
+            GALLERY_REQUEST
+        )
+    }
 
-    fun custom_dialog(ima: Bitmap) {
+    private fun custom_dialog() {
         val dialog: Dialog? = context?.let { Dialog(it) }
         dialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog?.setContentView(R.layout.dialog_custom)
+        val btnStop: Button? = dialog?.findViewById(R.id.btnStopRecorder)
+        val btnStart: Button? = dialog?.findViewById(R.id.btnStartRecorder)
+        btnStart?.setOnClickListener {
+            try {
 
-        val imagen: ImageView? = dialog?.findViewById(R.id.custom_image)
-        val descripcion: EditText? = dialog?.findViewById(R.id.custom_description)
-        val boton: Button? = dialog?.findViewById(R.id.custom_button)
-        boton?.setOnClickListener {
-
-            imagenes.add(Foto(descripcion?.text.toString(), ima))
-            Toast.makeText(context, "Guardada correctamente", Toast.LENGTH_SHORT).show()
-            dialog.hide()
+            } catch (e: Exception) {
+                Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+            }
         }
-        imagen!!.setImageBitmap(ima)
-        boton?.isEnabled = true
-        dialog.show()
+        btnStop?.setOnClickListener {
+
+        }
+        dialog?.show()
     }
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
-            val cPhoto = data!!.extras?.get("data") as Bitmap
-            custom_dialog(cPhoto)
-        }
         if (requestCode == GALLERY_REQUEST && resultCode == Activity.RESULT_OK) {
-            val selectedPhotoUri = data?.data
-            try {
-                selectedPhotoUri?.let {
-                    if (Build.VERSION.SDK_INT < 28) {
-                        val bitmap = MediaStore.Images.Media.getBitmap(
-                            getActivity()?.contentResolver,
-                            it
-                        )
-                        custom_dialog(bitmap)
-                    } else {
-                        val source = getActivity()?.contentResolver?.let { it1 ->
-                            ImageDecoder.createSource(
-                                it1, it
-                            )
-                        }
-                        val bitmap = source?.let { it1 -> ImageDecoder.decodeBitmap(it1) }
-                        if (bitmap != null) {
-                            custom_dialog(bitmap)
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            val uri: Uri? = data?.data
+            listaRecursos.add(RecursosNota(uri.toString(), "image"))
+            Toast.makeText(context, uri.toString(), Toast.LENGTH_SHORT).show()
+        }
+        if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
+            val bit: Bitmap = BitmapFactory.decodeFile(rute)
+            listaRecursos.add(RecursosNota(rute, "image"))
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == CAMERA_REQUEST) {
+            if (permissions.size >= 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                takePicture()
+            }
+        }
+        if (requestCode == PERMISSION_WRITTE_STORAGE) {
+            if (permissions.size >= 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
 
     companion object {
         private val CAMERA_REQUEST = 123
         private val GALLERY_REQUEST = 124
+        private val PERMISSION_WRITTE_STORAGE = 125
 
         /**
          * Use this factory method to create a new instance of
@@ -208,12 +278,16 @@ class fragment_agregar_nota : Fragment() {
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance(param1: String, param2: String) =
+        fun newInstance() =
             fragment_agregar_nota().apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, param1)
                     putString(ARG_PARAM2, param2)
                 }
             }
+    }
+
+    override fun onMenuItemClick(item: MenuItem?): Boolean {
+        return true
     }
 }
