@@ -18,7 +18,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
     private lateinit var toolBar: Toolbar
     private lateinit var navigationView: NavigationView
-    private lateinit var handler: Handler
     //VARIABLES PARA CARGAR EL FRAGMENT
     private lateinit var fragmentManager: FragmentManager
     private lateinit var fragmentTransaction: FragmentTransaction
@@ -47,18 +46,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             fragmentTransaction = fragmentManager.beginTransaction().addToBackStack(null)
             fragmentTransaction.add(R.id.contenedor_pequeño, fragment_ver_notas())
             fragmentTransaction.commit()
-        handler = Handler()
-        notification()
+
 
     }
 
-    private fun notification(){
-        handler.postDelayed(Runnable {
-            Toast.makeText(this,"Hola",Toast.LENGTH_SHORT).show()
-        },1000)
+
+
+    fun changeFragmentAddTask(obj: fragment_agregar_tarea){
+        try {
+            fragmentManager = supportFragmentManager
+            fragmentTransaction = fragmentManager.beginTransaction().addToBackStack(null)
+            fragmentTransaction.replace(R.id.contenedor_pequeño, obj)
+            fragmentTransaction.commit()
+        }catch (e: Exception){
+            Toast.makeText(applicationContext,e.message,Toast.LENGTH_SHORT).show()
+        }
     }
-
-
 
     fun changeFragmentAddNote(obj: fragment_agregar_nota){
         try {
@@ -105,7 +108,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             }
             R.id.agregar_tarea -> {
-                Toast.makeText(this, "Agregando tarea", Toast.LENGTH_SHORT).show()
+                fragmentManager = supportFragmentManager
+                fragmentTransaction = fragmentManager.beginTransaction().addToBackStack(null)
+                fragmentTransaction.replace(R.id.contenedor_pequeño, fragment_ver_tareas())
+                fragmentTransaction.commit()
             }
         }
         return false

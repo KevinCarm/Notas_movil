@@ -1,15 +1,18 @@
 package com.example.notas
 
+import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.notas.data.RecursosNota
 import com.example.notas.data.daoRecursosNota
+import java.util.ArrayList
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -50,16 +53,16 @@ class fragment_ver_imagenes : Fragment() {
         }
         return vista
     }
-
     private fun initialize(root: View, id: Int){
         recyclerView = root.findViewById(R.id.recycle_view_images)
-        layoutManager = GridLayoutManager(context, 1)
+        layoutManager = GridLayoutManager(context, 2)
         recyclerView.layoutManager = layoutManager
-        val lista = context?.let { daoRecursosNota(it).getAll().filter { it.equals("image") } }
-        val adapter = context?.let { adaptador_imagen(it, lista as ArrayList<RecursosNota>) }
-        recyclerView.adapter = adapter
+        val list: ArrayList<RecursosNota>? = context?.let { daoRecursosNota(it).getAllById(id) }
+        if (list != null) {
+           val adapter: adaptador_imagen? = context?.let { adaptador_imagen(it,list) }
+            recyclerView.adapter = adapter
+        }
     }
-
     companion object {
         /**
          * Use this factory method to create a new instance of

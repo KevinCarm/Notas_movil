@@ -106,6 +106,7 @@ class fragment_ver_notas : Fragment(),
                 return true
             }
             R.id.menu_agregar_tarea -> {
+                mainActivity.changeFragmentAddTask(fragment_agregar_tarea())
                 return true
             }
         }

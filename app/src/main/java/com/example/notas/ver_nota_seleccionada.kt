@@ -13,6 +13,7 @@ import android.widget.PopupMenu
 import android.widget.Toast
 import com.example.notas.data.daoNota
 import kotlinx.android.synthetic.main.fragment_ver_nota_seleccionada.*
+import java.lang.Exception
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -75,11 +76,15 @@ class ver_nota_seleccionada : Fragment(),
             popup.setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.item_view_images -> {
-                        val bundle = Bundle()
-                        bundle.putInt("idImagen", id)
-                        val verImagen: fragment_ver_imagenes = fragment_ver_imagenes()
-                        verImagen.arguments = bundle
-                        activity.changeFragmentViewImages(verImagen)
+                        try{
+                            val bundle = Bundle()
+                            bundle.putInt("idImagen", id)
+                            val fragmentVerImagenes = fragment_ver_imagenes()
+                            fragmentVerImagenes.arguments = bundle
+                            activity.changeFragmentViewImages(fragmentVerImagenes)
+                        }catch (e:Exception){
+                            Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+                        }
                         return@OnMenuItemClickListener true
                     }
                     R.id.item_add_from_camera -> {

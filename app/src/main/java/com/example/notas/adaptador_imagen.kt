@@ -5,6 +5,7 @@ import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -20,13 +21,10 @@ class adaptador_imagen(
         contexto.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
-        var image: ImageView
-        init {
-            image = itemView.findViewById(R.id.image_recycle)
-        }
+        var imagen: ImageView = itemView.findViewById(R.id.image_recycle)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): adaptador_imagen.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view: View = inflador.inflate(R.layout.item_recycle_images, null)
         return ViewHolder(view)
     }
@@ -37,6 +35,6 @@ class adaptador_imagen(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val resourse: RecursosNota = listaRecurso[position]
-        holder.image.setImageURI(Uri.parse(resourse.uri))
+        holder.imagen.setImageURI(Uri.parse(resourse.uri))
     }
 }

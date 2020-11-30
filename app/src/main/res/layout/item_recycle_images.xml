@@ -7,8 +7,8 @@
 
     <ImageView
         android:id="@+id/image_recycle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="300dp"
+        android:layout_height="400dp"
         android:layout_weight="1"
-        app:srcCompat="@drawable/ic_agregar_archivo" />
+        app:srcCompat="@drawable/bl_label" />
 </LinearLayout>

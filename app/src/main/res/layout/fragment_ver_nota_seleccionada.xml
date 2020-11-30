@@ -36,15 +36,14 @@
     <EditText
         android:id="@+id/txtViewTitleNote"
         android:layout_width="296dp"
-        android:layout_height="49dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="160dp"
         android:ems="10"
         android:inputType="textPersonName"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.139"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.234" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/txtViewDescriptionNote"
@@ -83,4 +82,5 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.721" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

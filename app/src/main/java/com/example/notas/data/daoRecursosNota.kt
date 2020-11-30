@@ -3,11 +3,13 @@ package com.example.notas.data
 import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
+import android.graphics.BitmapFactory
 import android.widget.Toast
-import java.util.ArrayList
+import java.util.*
+
 
 class daoRecursosNota(
-        val contexto: Context
+    val contexto: Context
 ) {
     private val database: AdminSQL = AdminSQL(contexto)
     var base: SQLiteDatabase = database.writableDatabase
@@ -26,6 +28,31 @@ class daoRecursosNota(
         }
     }
 
+    fun getAllById(id: Int): ArrayList<RecursosNota>{
+        base = database.readableDatabase
+        val list: ArrayList<RecursosNota> = ArrayList()
+        try {
+            val query: String = "SELECT * FROM ${Tabla_RecursosNota.nombre_tabla} WHERE ${Tabla_RecursosNota.campo_idNota} == '${id}'"
+            val cursor: Cursor = base.rawQuery(query, null)
+            while (cursor.moveToNext()) {
+                list.add(
+                    RecursosNota(
+                        cursor.getInt(0),
+                        cursor.getString(1),
+                        cursor.getString(2)
+                    )
+                )
+            }
+            cursor.close()
+        } catch (e: Exception) {
+            Toast.makeText(
+                contexto,
+                e.message, Toast.LENGTH_SHORT
+            ).show()
+        }
+        return list
+    }
+
     fun getAll(): ArrayList<RecursosNota> {
         base = database.readableDatabase
         val list: ArrayList<RecursosNota> = ArrayList()
@@ -33,16 +60,20 @@ class daoRecursosNota(
             val query: String = "SELECT * FROM ${Tabla_RecursosNota.nombre_tabla}"
             val cursor: Cursor = base.rawQuery(query, null)
             while (cursor.moveToNext()) {
-                list.add(RecursosNota(
+                list.add(
+                    RecursosNota(
                         cursor.getInt(0),
                         cursor.getString(1),
                         cursor.getString(2)
-                ))
+                    )
+                )
             }
             cursor.close()
         } catch (e: Exception) {
-            Toast.makeText(contexto,
-                    e.message, Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                contexto,
+                e.message, Toast.LENGTH_SHORT
+            ).show()
         }
         return list
     }

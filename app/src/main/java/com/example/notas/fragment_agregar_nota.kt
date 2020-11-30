@@ -1,6 +1,5 @@
 package com.example.notas
 
-import android.Manifest
 import android.app.Activity
 import android.app.Dialog
 import android.content.Context
@@ -16,8 +15,6 @@ import android.provider.MediaStore
 import android.view.*
 import android.widget.*
 import androidx.annotation.RequiresApi
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -27,7 +24,6 @@ import com.example.notas.data.daoNota
 import com.example.notas.data.daoRecursosNota
 import java.io.File
 import java.io.IOException
-import kotlin.jvm.Throws
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -54,7 +50,6 @@ class fragment_agregar_nota : Fragment(),
     private lateinit var activity: MainActivity
     private lateinit var listaRecursos: ArrayList<RecursosNota>
     private lateinit var imagen: ImageView
-    private var images: ArrayList<Foto> = ArrayList()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -92,24 +87,24 @@ class fragment_agregar_nota : Fragment(),
             val popup: PopupMenu = PopupMenu(getActivity(), floating)
             popup.menuInflater.inflate(R.menu.popup_menu, popup.menu)
             popup.setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener { item ->
-               try {
-                   when (item.itemId) {
-                       R.id.item_add_from_gallery -> {
-                           takeImageFromGallery()
-                           return@OnMenuItemClickListener true
-                       }
-                       R.id.item_add_from_camera -> {
-                           takePicture()
-                           return@OnMenuItemClickListener true
-                       }
-                       R.id.item_save_photo -> {
-                           custom_dialog()
-                           return@OnMenuItemClickListener true
-                       }
-                   }
-               }catch (e: Exception){
-                   Toast.makeText(context,e.message,Toast.LENGTH_SHORT).show()
-               }
+                try {
+                    when (item.itemId) {
+                        R.id.item_add_from_gallery -> {
+                            takeImageFromGallery()
+                            return@OnMenuItemClickListener true
+                        }
+                        R.id.item_add_from_camera -> {
+                            takePicture()
+                            return@OnMenuItemClickListener true
+                        }
+                        R.id.item_save_photo -> {
+                            custom_dialog()
+                            return@OnMenuItemClickListener true
+                        }
+                    }
+                } catch (e: Exception) {
+                    Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+                }
                 true
             })
             popup.show()
@@ -123,7 +118,7 @@ class fragment_agregar_nota : Fragment(),
 
     private fun takePicture() {
         val intent: Intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        // if (intent.resolveActivity(getActivity()!!.packageManager) != null) {
+         if (intent.resolveActivity(getActivity()!!.packageManager) != null) {
         var imageFile: File? = null
         try {
             imageFile = createImage()
@@ -141,7 +136,7 @@ class fragment_agregar_nota : Fragment(),
             intent.putExtra(MediaStore.EXTRA_OUTPUT, uriImage)
         }
         startActivityForResult(intent, CAMERA_REQUEST)
-        //}
+        }
     }
 
     var rute: String = ""
@@ -173,7 +168,9 @@ class fragment_agregar_nota : Fragment(),
     }
 
     private fun addResourcesToDB() {
+
         try {
+            Toast.makeText(context, listaRecursos.size.toString(), Toast.LENGTH_SHORT).show()
             listaRecursos.forEach {
                 context?.let { context ->
                     daoRecursosNota(context)
@@ -218,12 +215,13 @@ class fragment_agregar_nota : Fragment(),
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == GALLERY_REQUEST && resultCode == Activity.RESULT_OK) {
             val uri: Uri? = data?.data
-            listaRecursos.add(RecursosNota(uri.toString(), "image"))
+           listaRecursos.add(RecursosNota(uri.toString(),"image"))
             Toast.makeText(context, uri.toString(), Toast.LENGTH_SHORT).show()
         }
         if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
             val bit: Bitmap = BitmapFactory.decodeFile(rute)
-            listaRecursos.add(RecursosNota(rute, "image"))
+            listaRecursos.add(RecursosNota(rute,"image"))
+
         }
     }
 
@@ -240,7 +238,7 @@ class fragment_agregar_nota : Fragment(),
         }
         if (requestCode == PERMISSION_WRITTE_STORAGE) {
             if (permissions.size >= 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
+                takePicture()
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
