@@ -1,8 +1,10 @@
 package com.example.notas
 
 import android.app.Activity
+import android.app.Dialog
 import android.app.TimePickerDialog
 import android.app.TimePickerDialog.OnTimeSetListener
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -12,10 +14,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.core.content.FileProvider
@@ -25,8 +24,9 @@ import com.example.notas.data.RecursosTarea
 import com.example.notas.data.daoRecursosTarea
 import com.example.notas.data.daoTarea
 import com.example.notas_001.datos.Tarea
-import java.io.File
-import java.io.IOException
+import com.google.android.material.snackbar.Snackbar
+import java.io.*
+import java.lang.StringBuilder
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -106,7 +106,7 @@ class fragment_agregar_tarea : Fragment(),
                             return@OnMenuItemClickListener true
                         }
                         R.id.item_add_file -> {
-
+                            custom_dialog()
                             return@OnMenuItemClickListener true
                         }
                     }
@@ -123,6 +123,19 @@ class fragment_agregar_tarea : Fragment(),
         time.setOnClickListener {
             showTimePicked()
         }
+    }
+
+    private fun custom_dialog() {
+        val dialog: Dialog? = context?.let { Dialog(it) }
+        dialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog?.setContentView(R.layout.dialog_custom)
+        val text: EditText? = dialog?.findViewById(R.id.custom_text)
+        val button: Button? = dialog?.findViewById(R.id.custom_button)
+        button?.setOnClickListener {
+            saveFile(text?.text.toString())
+            Snackbar.make(button,"Archivo guardado", Snackbar.LENGTH_SHORT).show()
+        }
+        dialog?.show()
     }
 
     private fun takePicture() {
@@ -219,6 +232,49 @@ class fragment_agregar_tarea : Fragment(),
             Intent.createChooser(intent, "Seleccione una imagen"),
             GALLERY_REQUEST
         )
+    }
+
+    private fun saveFile(text: String){
+        val file_name = "file_${System.currentTimeMillis()}.txt"
+        var fileOutputStream: FileOutputStream? = null
+        try {
+            fileOutputStream = context?.openFileOutput(file_name, Context.MODE_PRIVATE)
+            fileOutputStream?.write(text.toByteArray())
+            Toast.makeText(context,"${context?.filesDir}/${file_name}",Toast.LENGTH_SHORT).show()
+        }catch (e: IOException){
+            e.printStackTrace()
+        }finally {
+            if(fileOutputStream != null){
+                try {
+                    listaRecursos.add(RecursosTarea(file_name,"file"))
+                    fileOutputStream.close()
+                }catch (e: IOException){
+
+                }
+            }
+        }
+        Toast.makeText(context,readFile(file_name), Toast.LENGTH_SHORT).show()
+    }
+    private fun readFile(name: String): String{
+        var fileInputStream: FileInputStream? = null
+        var stringBuilder = StringBuilder()
+        try {
+            fileInputStream = context?.openFileInput(name)
+            var inputStreamReader = InputStreamReader(fileInputStream)
+            var buffereader: BufferedReader = BufferedReader(inputStreamReader)
+            var texto: String? = ""
+            stringBuilder = StringBuilder()
+            while(texto != null){
+                texto = buffereader.readLine()
+                if(texto != null){
+                    stringBuilder.append(texto).append("\n")
+                }else
+                    break
+            }
+        }catch (e: IOException){
+
+        }
+        return stringBuilder.toString()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

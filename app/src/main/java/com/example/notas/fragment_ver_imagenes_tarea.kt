@@ -44,7 +44,7 @@ class fragment_ver_imagenes_tarea: Fragment() {
         recyclerView = root.findViewById(R.id.recycle_view_images)
         layoutManager = GridLayoutManager(context, 2)
         recyclerView.layoutManager = layoutManager
-        val list: ArrayList<RecursosTarea>? = context?.let { daoRecursosTarea(it).getAllById(id) }
+        val list: ArrayList<RecursosTarea>? = context?.let { daoRecursosTarea(it).getAllByImageType(id) }
         if (list != null) {
             val adapter: adaptador_imagen_tarea? = context?.let { adaptador_imagen_tarea(it,list) }
             recyclerView.adapter = adapter

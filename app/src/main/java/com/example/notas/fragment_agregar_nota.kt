@@ -221,6 +221,7 @@ class fragment_agregar_nota : Fragment(),
         }finally {
             if(fileOutputStream != null){
                 try {
+                    listaRecursos.add(RecursosNota(file_name,"file"))
                     fileOutputStream.close()
                 }catch (e: IOException){
 
