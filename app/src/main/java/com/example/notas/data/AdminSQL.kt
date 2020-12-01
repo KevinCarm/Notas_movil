@@ -19,12 +19,19 @@ class AdminSQL(
                 "${Tabla_nota.campo_nombre} VARCHAR(30)," +
                 "${Tabla_nota.campo_descripcion} VARCHAR(200) );"
         baseDatos?.execSQL(query_nota)
-        val queryTabla_RecursosNota: String = "CREATE TABLE ${Tabla_RecursosNota.nombre_tabla} ( " +
-                "${Tabla_RecursosNota.campo_idNota} INTEGER," +
-                "${Tabla_RecursosNota.campo_uri} TEXT NOT NULL," +
-                "${Tabla_RecursosNota.campo_tipo} VARCHAR(10)," +
-                "foreign key(${Tabla_RecursosNota.campo_idNota}) references ${Tabla_nota.nombre_tabla}(${Tabla_nota.campo_id}) );"
+        val queryTabla_RecursosNota: String = "CREATE TABLE ${Tabla_Recursos_nota.nombre_tabla} ( " +
+                "${Tabla_Recursos_nota.campo_idNota} INTEGER," +
+                "${Tabla_Recursos_nota.campo_uri} TEXT NOT NULL," +
+                "${Tabla_Recursos_nota.campo_tipo} VARCHAR(10)," +
+                "foreign key(${Tabla_Recursos_nota.campo_idNota}) references ${Tabla_nota.nombre_tabla}(${Tabla_nota.campo_id}) );"
         baseDatos?.execSQL(queryTabla_RecursosNota)
+       val queryTabla_RecursosTarea: String =
+           "CREATE TABLE ${Tabla_Recursos_tarea.nombre_tabla} (" +
+                   "${Tabla_Recursos_tarea.campo_idTarea} INTEGER," +
+                   "${Tabla_Recursos_tarea.campo_uri} TEXT NOT NULL," +
+                   "${Tabla_Recursos_tarea.campo_tipo} VARCHAR(10)," +
+                   "FOREIGN KEY(${Tabla_Recursos_tarea.campo_idTarea}) REFERENCES ${Tabla_tarea.nombre_tabla}(${Tabla_tarea.campo_id}) );"
+        baseDatos?.execSQL(queryTabla_RecursosTarea)
 
     }
 

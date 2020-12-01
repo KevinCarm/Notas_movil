@@ -3,7 +3,6 @@ package com.example.notas.data
 import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
-import android.graphics.BitmapFactory
 import android.widget.Toast
 import java.util.*
 
@@ -15,9 +14,9 @@ class daoRecursosNota(
     var base: SQLiteDatabase = database.writableDatabase
 
     fun insert(recursosNota: RecursosNota): Boolean {
-        val query: String = "INSERT INTO ${Tabla_RecursosNota.nombre_tabla} (" +
-                "${Tabla_RecursosNota.campo_idNota},${Tabla_RecursosNota.campo_uri}," +
-                "${Tabla_RecursosNota.campo_tipo} ) VALUES(" +
+        val query: String = "INSERT INTO ${Tabla_Recursos_nota.nombre_tabla} (" +
+                "${Tabla_Recursos_nota.campo_idNota},${Tabla_Recursos_nota.campo_uri}," +
+                "${Tabla_Recursos_nota.campo_tipo} ) VALUES(" +
                 "'${daoNota(contexto).getLastId()}','${recursosNota.uri}','${recursosNota.tipo}' );"
         return try {
             base.execSQL(query)
@@ -32,7 +31,7 @@ class daoRecursosNota(
         base = database.readableDatabase
         val list: ArrayList<RecursosNota> = ArrayList()
         try {
-            val query: String = "SELECT * FROM ${Tabla_RecursosNota.nombre_tabla} WHERE ${Tabla_RecursosNota.campo_idNota} == '${id}'"
+            val query: String = "SELECT * FROM ${Tabla_Recursos_nota.nombre_tabla} WHERE ${Tabla_Recursos_nota.campo_idNota} == '${id}'"
             val cursor: Cursor = base.rawQuery(query, null)
             while (cursor.moveToNext()) {
                 list.add(
@@ -57,7 +56,7 @@ class daoRecursosNota(
         base = database.readableDatabase
         val list: ArrayList<RecursosNota> = ArrayList()
         try {
-            val query: String = "SELECT * FROM ${Tabla_RecursosNota.nombre_tabla}"
+            val query: String = "SELECT * FROM ${Tabla_Recursos_nota.nombre_tabla}"
             val cursor: Cursor = base.rawQuery(query, null)
             while (cursor.moveToNext()) {
                 list.add(

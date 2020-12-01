@@ -1,5 +1,6 @@
 package com.example.notas
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -31,6 +32,10 @@ class fragment_ver_tareas : Fragment() {
     private lateinit var mainActivity: MainActivity
     private lateinit var floating_button: com.google.android.material.floatingactionbutton.FloatingActionButton
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        mainActivity = context as MainActivity
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -49,7 +54,12 @@ class fragment_ver_tareas : Fragment() {
         recyclerView.layoutManager = layoutManager
         val adapter = context?.let { daoTarea(it).getAll()?.let { it1 -> adaptador_tarea(it, it1) } }
         adapter?.setOnclickListener(View.OnClickListener {
-           Toast.makeText(context,"Tarea seleccionada",Toast.LENGTH_SHORT).show()
+            val id = recyclerView.getChildAdapterPosition(it) + 1
+            val bundle: Bundle = Bundle()
+            bundle.putInt("idTarea",id)
+            val tarea = fragment_ver_tarea_selecionada()
+            tarea.arguments = bundle
+            mainActivity.changeFragmentViewTask(tarea)
         })
         recyclerView.adapter = adapter
         return vista

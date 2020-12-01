@@ -24,6 +24,7 @@ import com.example.notas.data.daoNota
 import com.example.notas.data.daoRecursosNota
 import java.io.File
 import java.io.IOException
+import kotlin.jvm.Throws
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
