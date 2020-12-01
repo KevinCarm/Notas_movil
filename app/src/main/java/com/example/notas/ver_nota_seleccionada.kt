@@ -91,7 +91,7 @@ class ver_nota_seleccionada : Fragment(),
 
                         return@OnMenuItemClickListener true
                     }
-                    R.id.item_save_photo -> {
+                    R.id.item_add_file -> {
 
                         return@OnMenuItemClickListener true
                     }

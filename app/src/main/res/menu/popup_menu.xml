@@ -7,7 +7,7 @@
     <item android:id="@+id/item_add_from_camera"
         android:title="Agregar de camara">
     </item>
-    <item android:id="@+id/item_save_photo"
+    <item android:id="@+id/item_add_file"
         android:title="Agregar archivo">
     </item>
 </menu>

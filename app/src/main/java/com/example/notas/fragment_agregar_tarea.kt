@@ -4,22 +4,33 @@ import android.app.Activity
 import android.app.TimePickerDialog
 import android.app.TimePickerDialog.OnTimeSetListener
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.annotation.RequiresApi
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import com.example.notas.data.RecursosNota
 import com.example.notas.data.RecursosTarea
 import com.example.notas.data.daoRecursosTarea
 import com.example.notas.data.daoTarea
 import com.example.notas_001.datos.Tarea
+import java.io.File
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.jvm.Throws
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -91,10 +102,10 @@ class fragment_agregar_tarea : Fragment(),
                             return@OnMenuItemClickListener true
                         }
                         R.id.item_add_from_camera -> {
-
+                            takePicture()
                             return@OnMenuItemClickListener true
                         }
-                        R.id.item_save_photo -> {
+                        R.id.item_add_file -> {
 
                             return@OnMenuItemClickListener true
                         }
@@ -114,6 +125,40 @@ class fragment_agregar_tarea : Fragment(),
         }
     }
 
+    private fun takePicture() {
+        val intent: Intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        if (intent.resolveActivity(getActivity()!!.packageManager) != null) {
+            var imageFile: File? = null
+            try {
+                imageFile = createImage()
+            } catch (e: IOException) {
+                Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
+            }
+            if (imageFile != null) {
+                val uriImage: Uri? = getActivity()?.let {
+                    FileProvider.getUriForFile(
+                        it,
+                        "com.example.notas.fileprovider",
+                        imageFile
+                    )
+                }
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, uriImage)
+            }
+            startActivityForResult(intent, CAMERA_REQUEST)
+        }
+    }
+
+    @Throws(IOException::class)
+    private fun createImage(): File {
+        val imageName = "foto_"
+        val directory: File? = getActivity()!!.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val image = File.createTempFile(imageName, ".jpg", directory)
+        rute = image.absolutePath
+        Toast.makeText(context, rute, Toast.LENGTH_SHORT).show()
+        return image
+    }
+
+    var rute: String = ""
     private fun addTaskToDataBase() {
         try {
             val fecha_final = "$fecha_seleccionada $hora_seleccionada"
@@ -183,6 +228,30 @@ class fragment_agregar_tarea : Fragment(),
             listaRecursos.add(RecursosTarea(uri.toString(), "image"))
             Toast.makeText(context, uri.toString(), Toast.LENGTH_SHORT).show()
         }
+        if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
+            val bit: Bitmap = BitmapFactory.decodeFile(rute)
+            listaRecursos.add(RecursosTarea(rute,"image"))
+
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == CAMERA_REQUEST) {
+            if (permissions.size >= 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                takePicture()
+            }
+        }
+        if (requestCode == PERMISSION_WRITTE_STORAGE) {
+            if (permissions.size >= 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                takePicture()
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     companion object {

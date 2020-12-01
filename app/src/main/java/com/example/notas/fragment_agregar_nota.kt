@@ -3,6 +3,7 @@ package com.example.notas
 import android.app.Activity
 import android.app.Dialog
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -22,8 +23,10 @@ import androidx.fragment.app.FragmentTransaction
 import com.example.notas.data.RecursosNota
 import com.example.notas.data.daoNota
 import com.example.notas.data.daoRecursosNota
-import java.io.File
-import java.io.IOException
+import com.google.android.material.snackbar.Snackbar
+import java.io.*;
+import java.io.OutputStream
+import java.lang.StringBuilder
 import kotlin.jvm.Throws
 
 // TODO: Rename parameter arguments, choose names that match
@@ -98,7 +101,7 @@ class fragment_agregar_nota : Fragment(),
                             takePicture()
                             return@OnMenuItemClickListener true
                         }
-                        R.id.item_save_photo -> {
+                        R.id.item_add_file -> {
                             custom_dialog()
                             return@OnMenuItemClickListener true
                         }
@@ -197,21 +200,56 @@ class fragment_agregar_nota : Fragment(),
         val dialog: Dialog? = context?.let { Dialog(it) }
         dialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog?.setContentView(R.layout.dialog_custom)
-        val btnStop: Button? = dialog?.findViewById(R.id.btnStopRecorder)
-        val btnStart: Button? = dialog?.findViewById(R.id.btnStartRecorder)
-        btnStart?.setOnClickListener {
-            try {
-
-            } catch (e: Exception) {
-                Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
-            }
-        }
-        btnStop?.setOnClickListener {
-
+        val text: EditText? = dialog?.findViewById(R.id.custom_text)
+        val button: Button? = dialog?.findViewById(R.id.custom_button)
+        button?.setOnClickListener {
+            saveFile(text?.text.toString())
+            Snackbar.make(button,"Holi",Snackbar.LENGTH_SHORT).show()
         }
         dialog?.show()
     }
 
+    private fun saveFile(text: String){
+        val file_name = "file_${System.currentTimeMillis()}.txt"
+        var fileOutputStream:FileOutputStream? = null
+        try {
+            fileOutputStream = context?.openFileOutput(file_name, MODE_PRIVATE)
+            fileOutputStream?.write(text.toByteArray())
+            Toast.makeText(context,"${context?.filesDir}/${file_name}",Toast.LENGTH_SHORT).show()
+        }catch (e: IOException){
+            e.printStackTrace()
+        }finally {
+            if(fileOutputStream != null){
+                try {
+                    fileOutputStream.close()
+                }catch (e: IOException){
+
+                }
+            }
+        }
+        Toast.makeText(context,readFile(file_name), Toast.LENGTH_SHORT).show()
+    }
+    private fun readFile(name: String): String{
+        var fileInputStream: FileInputStream? = null
+        var stringBuilder = StringBuilder()
+        try {
+            fileInputStream = context?.openFileInput(name)
+            var inputStreamReader = InputStreamReader(fileInputStream)
+            var buffereader: BufferedReader = BufferedReader(inputStreamReader)
+            var texto: String? = ""
+            stringBuilder = StringBuilder()
+            while(texto != null){
+                texto = buffereader.readLine()
+                if(texto != null){
+                    stringBuilder.append(texto).append("\n")
+                }else
+                    break
+            }
+        }catch (e: IOException){
+
+        }
+        return stringBuilder.toString()
+    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == GALLERY_REQUEST && resultCode == Activity.RESULT_OK) {
