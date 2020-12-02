@@ -175,6 +175,7 @@ class fragment_agregar_tarea : Fragment(),
     private fun addTaskToDataBase() {
         try {
             val fecha_final = "$fecha_seleccionada $hora_seleccionada"
+
             val tarea = Tarea(title.text.toString(), description.text.toString(), fecha_final)
             context?.let { daoTarea(it).insert(tarea) }
         } catch (e: Exception) {
