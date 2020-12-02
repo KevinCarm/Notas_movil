@@ -3,4 +3,7 @@
     <item android:id="@+id/item_view_images"
         android:title="Ver imagenes">
     </item>
+    <item
+        android:id="@+id/item_view_files"
+        android:title="Ver archivos de texto"/>
 </menu>

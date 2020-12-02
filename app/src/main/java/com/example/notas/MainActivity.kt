@@ -100,6 +100,28 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+    fun changeFragmentViewFilesNote(obj: fragment_ver_archivos){
+        try {
+            fragmentManager = supportFragmentManager
+            fragmentTransaction = fragmentManager.beginTransaction().addToBackStack(null)
+            fragmentTransaction.replace(R.id.contenedor_pequeño, obj)
+            fragmentTransaction.commit()
+        } catch (e: Exception) {
+            Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun changeFragmentViewFilesTask(obj: fragment_ver_archivos_tarea){
+        try {
+            fragmentManager = supportFragmentManager
+            fragmentTransaction = fragmentManager.beginTransaction().addToBackStack(null)
+            fragmentTransaction.replace(R.id.contenedor_pequeño, obj)
+            fragmentTransaction.commit()
+        } catch (e: Exception) {
+            Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+        }
+    }
+    
     fun changeFragmentViewImages(obj: fragment_ver_imagenes) {
         try {
             fragmentManager = supportFragmentManager
@@ -205,7 +227,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
             }
     }
-
     private fun actualTime(): String {
         val dfDate_day =
             SimpleDateFormat("dd/MM/yyyy hh:mm a")

@@ -76,19 +76,23 @@ class ver_nota_seleccionada : Fragment(),
             popup.setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.item_view_images -> {
-                        try{
+                        try {
                             val bundle = Bundle()
                             bundle.putInt("idImagen", id)
                             val fragmentVerImagenes = fragment_ver_imagenes()
                             fragmentVerImagenes.arguments = bundle
                             activity.changeFragmentViewImages(fragmentVerImagenes)
-                        }catch (e:Exception){
+                        } catch (e: Exception) {
                             Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
                         }
                         return@OnMenuItemClickListener true
                     }
-                    R.id.item_add_from_camera -> {
-
+                    R.id.item_view_files -> {
+                        val bundle: Bundle = Bundle()
+                        bundle.putInt("idArchivo", id)
+                        val fragmentVerArchivos = fragment_ver_archivos()
+                        fragmentVerArchivos.arguments = bundle
+                        activity.changeFragmentViewFilesNote(fragmentVerArchivos)
                         return@OnMenuItemClickListener true
                     }
                     R.id.item_add_file -> {

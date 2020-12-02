@@ -51,6 +51,31 @@ class daoRecursosNota(
         }
         return list
     }
+    fun getAllByFileType(id: Int): ArrayList<RecursosNota>{
+        base = database.readableDatabase
+        val list: ArrayList<RecursosNota> = ArrayList()
+        try {
+            val query =
+                "SELECT * FROM ${Tabla_Recursos_nota.nombre_tabla} " +
+                        "WHERE ${Tabla_Recursos_nota.campo_idNota} = '${id}' " +
+                        "AND ${Tabla_Recursos_nota.campo_tipo} = 'file'"
+            val cursor: Cursor = base.rawQuery(query, null)
+            while (cursor.moveToNext()){
+                list.add(
+                    RecursosNota(
+                        cursor.getInt(0),
+                        cursor.getString(1),
+                        cursor.getString(2)
+                    )
+                )
+            }
+            cursor.close()
+        }catch (e: Exception){
+            Toast.makeText(contexto, e.message, Toast.LENGTH_SHORT).show()
+        }
+        Toast.makeText(contexto,"Files ${list.size.toString()}", Toast.LENGTH_SHORT).show()
+        return list
+    }
 
     fun getAllById(id: Int): ArrayList<RecursosNota>{
         base = database.readableDatabase

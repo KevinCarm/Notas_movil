@@ -91,6 +91,14 @@ class fragment_ver_tarea_selecionada : Fragment(),
                        mainActivity.changeFragmentViewImagesTask(imagenTarea)
                        return@OnMenuItemClickListener true
                    }
+                    R.id.item_view_files -> {
+                        val archivoTarea = fragment_ver_archivos_tarea()
+                        val bundle = Bundle()
+                        bundle.putInt("idArchivo", obj.idTarea)
+                        archivoTarea.arguments = bundle
+                        mainActivity.changeFragmentViewFilesTask(archivoTarea)
+                        return@OnMenuItemClickListener true
+                    }
                 }
                 true
             })
