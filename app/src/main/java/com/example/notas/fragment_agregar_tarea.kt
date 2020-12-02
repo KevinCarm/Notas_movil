@@ -1,6 +1,5 @@
 package com.example.notas
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.app.TimePickerDialog
@@ -140,8 +139,8 @@ class fragment_agregar_tarea : Fragment(),
     }
 
     private fun takePicture() {
-        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        if (intent.resolveActivity(activity!!.packageManager) != null) {
+        val intent: Intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        if (intent.resolveActivity(getActivity()!!.packageManager) != null) {
             var imageFile: File? = null
             try {
                 imageFile = createImage()
@@ -149,7 +148,7 @@ class fragment_agregar_tarea : Fragment(),
                 Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
             }
             if (imageFile != null) {
-                val uriImage: Uri? = activity?.let {
+                val uriImage: Uri? = getActivity()?.let {
                     FileProvider.getUriForFile(
                         it,
                         "com.example.notas.fileprovider",
@@ -176,7 +175,6 @@ class fragment_agregar_tarea : Fragment(),
     private fun addTaskToDataBase() {
         try {
             val fecha_final = "$fecha_seleccionada $hora_seleccionada"
-            Toast.makeText(context,"${fecha_final }\n $fechaActual",Toast.LENGTH_LONG).show()
             val tarea = Tarea(title.text.toString(), description.text.toString(), fecha_final)
             context?.let { daoTarea(it).insert(tarea) }
         } catch (e: Exception) {
@@ -198,7 +196,6 @@ class fragment_agregar_tarea : Fragment(),
         }
     }
 
-    @SuppressLint("SimpleDateFormat")
     private fun actualTime() {
         val dfDate_day = SimpleDateFormat("dd/MM/yyyy hh:mm a")
         val c = Calendar.getInstance()
@@ -218,13 +215,15 @@ class fragment_agregar_tarea : Fragment(),
         )
         timePickerDialog.show()
     }
+
     private fun showDatePickerDialog() {
         val newFragment =
-            DatePickerFragment.newInstance { datePicker, year, month, day ->
+            DatePickerFragment.newInstance { datePicker, year, month, day -> // +1 because January is zero
                 fecha_seleccionada = day.toString() + "/" + (month + 1) + "/" + year
             }
         activity?.supportFragmentManager?.let { newFragment.show(it, "datePicker") }
     }
+
     private fun takeImageFromGallery() {
         val intent = Intent()
         intent.type = "image/*"

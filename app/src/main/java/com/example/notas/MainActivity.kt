@@ -219,7 +219,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun checkdateFromDataBase() {
         val list = daoTarea(this).getAll()
             ?.forEach { item ->
-                if (item.fecha == actualTime()) {
+                var op: String = actualTime()
+                if(actualTime().startsWith('0')){
+                    op = actualTime().substring(1)
+                }
+                if (item.fecha == op) {
                     message(
                         "Hoy es la fecha de esta tarea ",
                         "La tarea es ${item.titulo}  \n ${item.fecha}", item.idTarea
