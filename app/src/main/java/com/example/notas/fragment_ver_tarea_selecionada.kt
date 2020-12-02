@@ -99,7 +99,15 @@ class fragment_ver_tarea_selecionada : Fragment(),
                         mainActivity.changeFragmentViewFilesTask(archivoTarea)
                         return@OnMenuItemClickListener true
                     }
-                }
+                    R.id.item_view_video ->{
+                        val videoTarea = fragment_ver_videos()
+                        val bundle = Bundle()
+                        bundle.putInt("idVideo", obj.idTarea)
+                        videoTarea.arguments = bundle
+                        mainActivity.changeFragmentViewVideoTask(videoTarea)
+                        return@OnMenuItemClickListener true
+                    }
+                 }
                 true
             })
             popup.show()

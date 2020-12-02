@@ -1,5 +1,6 @@
 package com.example.notas
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.app.TimePickerDialog
@@ -25,6 +26,7 @@ import com.example.notas.data.daoRecursosTarea
 import com.example.notas.data.daoTarea
 import com.example.notas_001.datos.Tarea
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.android.synthetic.main.fragment_agregar_tarea.*
 import java.io.*
 import java.lang.StringBuilder
 import java.text.SimpleDateFormat
@@ -109,6 +111,10 @@ class fragment_agregar_tarea : Fragment(),
                             custom_dialog()
                             return@OnMenuItemClickListener true
                         }
+                        R.id.item_take_video -> {
+                            takeVideo()
+                            return@OnMenuItemClickListener true
+                        }
                     }
                 } catch (e: Exception) {
                     Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
@@ -160,6 +166,28 @@ class fragment_agregar_tarea : Fragment(),
             startActivityForResult(intent, CAMERA_REQUEST)
         }
     }
+    private fun takeVideo(){
+        val intent: Intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
+        if(intent.resolveActivity(activity!!.packageManager) != null){
+            var videoFile: File? = null
+            try {
+                videoFile = createVideo()
+            }catch (e: IOException){
+                e.printStackTrace()
+            }
+            if(videoFile != null){
+                val uriVideo: Uri? = getActivity()?.let {
+                    FileProvider.getUriForFile(
+                        it,
+                        "com.example.notas.fileprovider",
+                        videoFile
+                    )
+                }
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, uriVideo)
+            }
+            startActivityForResult(intent, VIDEO_REQUEST)
+        }
+    }
 
     @Throws(IOException::class)
     private fun createImage(): File {
@@ -169,6 +197,14 @@ class fragment_agregar_tarea : Fragment(),
         rute = image.absolutePath
         Toast.makeText(context, rute, Toast.LENGTH_SHORT).show()
         return image
+    }
+    var videoRute = ""
+    private fun createVideo(): File {
+        val videoName = "video_"
+        val directory: File ? = activity!!.getExternalFilesDir(Environment.DIRECTORY_MOVIES)
+        val video = File.createTempFile(videoName,".mp4",directory)
+        videoRute = video.absolutePath
+        return video
     }
 
     var rute: String = ""
@@ -196,6 +232,7 @@ class fragment_agregar_tarea : Fragment(),
         }
     }
 
+    @SuppressLint("SimpleDateFormat")
     private fun actualTime() {
         val dfDate_day = SimpleDateFormat("dd/MM/yyyy hh:mm a")
         val c = Calendar.getInstance()
@@ -289,6 +326,10 @@ class fragment_agregar_tarea : Fragment(),
             listaRecursos.add(RecursosTarea(rute,"image"))
 
         }
+        if(requestCode == VIDEO_REQUEST && resultCode == Activity.RESULT_OK){
+            val uri: Uri? = data!!.data
+            listaRecursos.add(RecursosTarea(videoRute,"video"))
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -314,6 +355,7 @@ class fragment_agregar_tarea : Fragment(),
         private const val CAMERA_REQUEST = 123
         private const val GALLERY_REQUEST = 124
         private const val PERMISSION_WRITTE_STORAGE = 125
+        private const val VIDEO_REQUEST = 126
 
         /**
          * Use this factory method to create a new instance of

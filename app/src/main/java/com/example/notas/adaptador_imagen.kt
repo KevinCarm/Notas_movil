@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.notas.data.RecursosNota
 
 class adaptador_imagen(
-    var contexto: Context,
+    contexto: Context,
     var listaRecurso: ArrayList<RecursosNota>
 ): RecyclerView.Adapter<adaptador_imagen.ViewHolder>() {
 

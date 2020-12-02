@@ -6,4 +6,6 @@
     <item
         android:id="@+id/item_view_files"
         android:title="Ver archivos de texto"/>
+    <item android:id="@+id/item_view_video"
+        android:title="Ver videos"/>
 </menu>

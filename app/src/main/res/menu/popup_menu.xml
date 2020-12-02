@@ -10,4 +10,7 @@
     <item android:id="@+id/item_add_file"
         android:title="Agregar archivo">
     </item>
+    <item
+        android:id="@+id/item_take_video"
+        android:title="Grabar video"/>
 </menu>

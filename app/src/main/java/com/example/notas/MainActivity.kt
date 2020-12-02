@@ -121,6 +121,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
         }
     }
+
+    fun changeFragmentViewVideoTask(obj: fragment_ver_videos){
+        try {
+            fragmentManager = supportFragmentManager
+            fragmentTransaction = fragmentManager.beginTransaction().addToBackStack(null)
+            fragmentTransaction.replace(R.id.contenedor_pequeño, obj)
+            fragmentTransaction.commit()
+        } catch (e: Exception) {
+            Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+        }
+    }
     
     fun changeFragmentViewImages(obj: fragment_ver_imagenes) {
         try {
