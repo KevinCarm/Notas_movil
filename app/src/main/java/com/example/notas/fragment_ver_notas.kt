@@ -7,7 +7,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -53,7 +52,7 @@ class fragment_ver_notas : Fragment(),
     ): View? {
         val vista = inflater.inflate(R.layout.fragment_ver_notas, container, false)
         floating_button = vista.findViewById(R.id.float_ver_notas)
-        popupMenu(vista)
+        popupMenu()
         recyclerView = vista.findViewById(R.id.recycle_notas)
         layoutManager = GridLayoutManager(context, 1)
         recyclerView.layoutManager = layoutManager
@@ -70,7 +69,7 @@ class fragment_ver_notas : Fragment(),
         return vista
     }
 
-    private fun popupMenu(vista: View): Unit {
+    private fun popupMenu(): Unit {
         floating_button.setOnClickListener {
             val popup: PopupMenu = PopupMenu(activity, floating_button)
             popup.setOnMenuItemClickListener(this)

@@ -95,8 +95,12 @@ class ver_nota_seleccionada : Fragment(),
                         activity.changeFragmentViewFilesNote(fragmentVerArchivos)
                         return@OnMenuItemClickListener true
                     }
-                    R.id.item_add_file -> {
-
+                    R.id.item_view_video -> {
+                        val verVideo:fragment_ver_videos_notas = fragment_ver_videos_notas()
+                        val bundle: Bundle = Bundle()
+                        bundle.putInt("idVideo", id)
+                        verVideo.arguments = bundle
+                        activity.changeFragmentViewVideoNote(verVideo)
                         return@OnMenuItemClickListener true
                     }
                 }

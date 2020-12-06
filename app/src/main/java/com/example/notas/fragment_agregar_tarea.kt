@@ -326,9 +326,9 @@ class fragment_agregar_tarea : Fragment(),
             listaRecursos.add(RecursosTarea(rute,"image"))
 
         }
-        if(requestCode == VIDEO_REQUEST && resultCode == Activity.RESULT_OK){
+        if (requestCode == VIDEO_REQUEST && resultCode == Activity.RESULT_OK) {
             val uri: Uri? = data!!.data
-            listaRecursos.add(RecursosTarea(videoRute,"video"))
+            listaRecursos.add(RecursosTarea(videoRute, "video"))
         }
     }
 

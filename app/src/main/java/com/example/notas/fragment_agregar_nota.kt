@@ -21,6 +21,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import com.example.notas.data.RecursosNota
+import com.example.notas.data.RecursosTarea
 import com.example.notas.data.daoNota
 import com.example.notas.data.daoRecursosNota
 import com.google.android.material.snackbar.Snackbar
@@ -105,6 +106,10 @@ class fragment_agregar_nota : Fragment(),
                             custom_dialog()
                             return@OnMenuItemClickListener true
                         }
+                        R.id.item_take_video -> {
+                            takeVideo()
+                            return@OnMenuItemClickListener true
+                        }
                     }
                 } catch (e: Exception) {
                     Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
@@ -119,27 +124,49 @@ class fragment_agregar_nota : Fragment(),
         }
     }
 
+    private fun takeVideo() {
+        val intent: Intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
+        if (intent.resolveActivity(activity.packageManager) != null) {
+            var videoFile: File? = null
+            try {
+                videoFile = createVideo()
+            } catch (e: IOException) {
+                Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
+            }
+            if (videoFile != null) {
+                val uriVideo: Uri? = activity?.let {
+                    FileProvider.getUriForFile(
+                        it,
+                        "com.example.notas.fileprovider",
+                        videoFile
+                    )
+                }
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, uriVideo)
+            }
+            startActivityForResult(intent, VIDEO_REQUEST)
+        }
+    }
 
     private fun takePicture() {
         val intent: Intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-         if (intent.resolveActivity(getActivity()!!.packageManager) != null) {
-        var imageFile: File? = null
-        try {
-            imageFile = createImage()
-        } catch (e: IOException) {
-            Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
-        }
-        if (imageFile != null) {
-            val uriImage: Uri? = getActivity()?.let {
-                FileProvider.getUriForFile(
-                    it,
-                    "com.example.notas.fileprovider",
-                    imageFile
-                )
+        if (intent.resolveActivity(getActivity()!!.packageManager) != null) {
+            var imageFile: File? = null
+            try {
+                imageFile = createImage()
+            } catch (e: IOException) {
+                Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
             }
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, uriImage)
-        }
-        startActivityForResult(intent, CAMERA_REQUEST)
+            if (imageFile != null) {
+                val uriImage: Uri? = getActivity()?.let {
+                    FileProvider.getUriForFile(
+                        it,
+                        "com.example.notas.fileprovider",
+                        imageFile
+                    )
+                }
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, uriImage)
+            }
+            startActivityForResult(intent, CAMERA_REQUEST)
         }
     }
 
@@ -153,6 +180,20 @@ class fragment_agregar_nota : Fragment(),
         rute = image.absolutePath
         Toast.makeText(context, rute, Toast.LENGTH_SHORT).show()
         return image
+    }
+
+    var videoRute = ""
+    private fun createVideo(): File {
+        val videoName = "video_"
+        val directory: File? =
+            activity.getExternalFilesDir(Environment.DIRECTORY_MOVIES)
+        val video =
+            File.createTempFile(
+                videoName, ".mp4",
+                directory
+            )
+        videoRute = video.absolutePath
+        return video
     }
 
 
@@ -204,33 +245,34 @@ class fragment_agregar_nota : Fragment(),
         val button: Button? = dialog?.findViewById(R.id.custom_button)
         button?.setOnClickListener {
             saveFile(text?.text.toString())
-            Snackbar.make(button,"Holi",Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(button, "Holi", Snackbar.LENGTH_SHORT).show()
         }
         dialog?.show()
     }
 
-    private fun saveFile(text: String){
+    private fun saveFile(text: String) {
         val file_name = "file_${System.currentTimeMillis()}.txt"
-        var fileOutputStream:FileOutputStream? = null
+        var fileOutputStream: FileOutputStream? = null
         try {
             fileOutputStream = context?.openFileOutput(file_name, MODE_PRIVATE)
             fileOutputStream?.write(text.toByteArray())
-            Toast.makeText(context,"${context?.filesDir}/${file_name}",Toast.LENGTH_SHORT).show()
-        }catch (e: IOException){
+            Toast.makeText(context, "${context?.filesDir}/${file_name}", Toast.LENGTH_SHORT).show()
+        } catch (e: IOException) {
             e.printStackTrace()
-        }finally {
-            if(fileOutputStream != null){
+        } finally {
+            if (fileOutputStream != null) {
                 try {
-                    listaRecursos.add(RecursosNota(file_name,"file"))
+                    listaRecursos.add(RecursosNota(file_name, "file"))
                     fileOutputStream.close()
-                }catch (e: IOException){
+                } catch (e: IOException) {
 
                 }
             }
         }
-        Toast.makeText(context,readFile(file_name), Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, readFile(file_name), Toast.LENGTH_SHORT).show()
     }
-    private fun readFile(name: String): String{
+
+    private fun readFile(name: String): String {
         var fileInputStream: FileInputStream? = null
         var stringBuilder = StringBuilder()
         try {
@@ -239,14 +281,14 @@ class fragment_agregar_nota : Fragment(),
             var buffereader: BufferedReader = BufferedReader(inputStreamReader)
             var texto: String? = ""
             stringBuilder = StringBuilder()
-            while(texto != null){
+            while (texto != null) {
                 texto = buffereader.readLine()
-                if(texto != null){
+                if (texto != null) {
                     stringBuilder.append(texto).append("\n")
-                }else
+                } else
                     break
             }
-        }catch (e: IOException){
+        } catch (e: IOException) {
 
         }
         return stringBuilder.toString()
@@ -255,13 +297,17 @@ class fragment_agregar_nota : Fragment(),
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == GALLERY_REQUEST && resultCode == Activity.RESULT_OK) {
             val uri: Uri? = data?.data
-           listaRecursos.add(RecursosNota(uri.toString(),"image"))
+            listaRecursos.add(RecursosNota(uri.toString(), "image"))
             Toast.makeText(context, uri.toString(), Toast.LENGTH_SHORT).show()
         }
         if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
             val bit: Bitmap = BitmapFactory.decodeFile(rute)
-            listaRecursos.add(RecursosNota(rute,"image"))
+            listaRecursos.add(RecursosNota(rute, "image"))
 
+        }
+        if (requestCode == VIDEO_REQUEST && resultCode == Activity.RESULT_OK) {
+            val uri: Uri? = data!!.data
+            listaRecursos.add(RecursosNota(videoRute, "video"))
         }
     }
 
@@ -285,9 +331,10 @@ class fragment_agregar_nota : Fragment(),
     }
 
     companion object {
-        private val CAMERA_REQUEST = 123
-        private val GALLERY_REQUEST = 124
-        private val PERMISSION_WRITTE_STORAGE = 125
+        private const val CAMERA_REQUEST = 123
+        private const val GALLERY_REQUEST = 124
+        private const val PERMISSION_WRITTE_STORAGE = 125
+        private const val VIDEO_REQUEST = 126
 
         /**
          * Use this factory method to create a new instance of

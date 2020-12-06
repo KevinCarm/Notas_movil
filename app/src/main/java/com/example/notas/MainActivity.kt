@@ -4,6 +4,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -14,8 +15,10 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.FragmentManager
@@ -24,6 +27,7 @@ import com.example.notas.data.daoTarea
 import com.google.android.material.navigation.NavigationView
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.jar.Manifest
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private lateinit var drawerLayout: DrawerLayout
@@ -32,6 +36,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var navigationView: NavigationView
 
     private var handler: Handler? = null
+
     //VARIABLES PARA CARGAR EL FRAGMENT
     private lateinit var fragmentManager: FragmentManager
     private lateinit var fragmentTransaction: FragmentTransaction
@@ -39,6 +44,36 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         //Mostrar los componentes
+
+        if (ContextCompat.checkSelfPermission(
+                applicationContext,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(
+                applicationContext,
+                android.Manifest.permission.RECORD_AUDIO
+            )
+            != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                applicationContext,
+                android.Manifest.permission.CAMERA
+            ) !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this, arrayOf(
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    android.Manifest.permission.RECORD_AUDIO, android.Manifest.permission.CAMERA
+                ),
+                1000
+            )
+        }
+
+
+
+
+
+
+
         toolBar = findViewById(R.id.toolBar)
         handler = Handler()
         setSupportActionBar(toolBar)
@@ -100,7 +135,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    fun changeFragmentViewFilesNote(obj: fragment_ver_archivos){
+    fun changeFragmentViewFilesNote(obj: fragment_ver_archivos) {
         try {
             fragmentManager = supportFragmentManager
             fragmentTransaction = fragmentManager.beginTransaction().addToBackStack(null)
@@ -111,7 +146,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    fun changeFragmentViewFilesTask(obj: fragment_ver_archivos_tarea){
+    fun changeFragmentViewVideoNote(obj: fragment_ver_videos_notas) {
         try {
             fragmentManager = supportFragmentManager
             fragmentTransaction = fragmentManager.beginTransaction().addToBackStack(null)
@@ -122,7 +157,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    fun changeFragmentViewVideoTask(obj: fragment_ver_videos){
+    fun changeFragmentViewFilesTask(obj: fragment_ver_archivos_tarea) {
         try {
             fragmentManager = supportFragmentManager
             fragmentTransaction = fragmentManager.beginTransaction().addToBackStack(null)
@@ -132,7 +167,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
         }
     }
-    
+
+    fun changeFragmentViewVideoTask(obj: fragment_ver_videos) {
+        try {
+            fragmentManager = supportFragmentManager
+            fragmentTransaction = fragmentManager.beginTransaction().addToBackStack(null)
+            fragmentTransaction.replace(R.id.contenedor_pequeño, obj)
+            fragmentTransaction.commit()
+        } catch (e: Exception) {
+            Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
     fun changeFragmentViewImages(obj: fragment_ver_imagenes) {
         try {
             fragmentManager = supportFragmentManager
@@ -143,7 +189,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
         }
     }
-    fun changeFragmentViewImagesTask(obj: fragment_ver_imagenes_tarea){
+
+    fun changeFragmentViewImagesTask(obj: fragment_ver_imagenes_tarea) {
         try {
             fragmentManager = supportFragmentManager
             fragmentTransaction = fragmentManager.beginTransaction().addToBackStack(null)
@@ -153,7 +200,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
         }
     }
-    fun changeFragmentViewTask(obj: fragment_ver_tarea_selecionada){
+
+    fun changeFragmentViewTask(obj: fragment_ver_tarea_selecionada) {
         try {
             fragmentManager = supportFragmentManager
             fragmentTransaction = fragmentManager.beginTransaction().addToBackStack(null)
@@ -226,12 +274,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }, 2000)
     }
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     private fun checkdateFromDataBase() {
         val list = daoTarea(this).getAll()
             ?.forEach { item ->
                 var op: String = actualTime()
-                if(actualTime().startsWith('0')){
+                if (actualTime().startsWith('0')) {
                     op = actualTime().substring(1)
                 }
                 if (item.fecha == op) {
@@ -242,6 +291,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
             }
     }
+
     private fun actualTime(): String {
         val dfDate_day =
             SimpleDateFormat("dd/MM/yyyy hh:mm a")
