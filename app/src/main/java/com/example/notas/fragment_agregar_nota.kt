@@ -8,6 +8,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.MediaPlayer
+import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -21,14 +23,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import com.example.notas.data.RecursosNota
-import com.example.notas.data.RecursosTarea
 import com.example.notas.data.daoNota
 import com.example.notas.data.daoRecursosNota
 import com.google.android.material.snackbar.Snackbar
-import java.io.*;
-import java.io.OutputStream
-import java.lang.StringBuilder
-import kotlin.jvm.Throws
+import java.io.*
+
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -54,7 +53,7 @@ class fragment_agregar_nota : Fragment(),
     private lateinit var floating: com.google.android.material.floatingactionbutton.FloatingActionButton
     private lateinit var activity: MainActivity
     private lateinit var listaRecursos: ArrayList<RecursosNota>
-    private lateinit var imagen: ImageView
+    private var miGrabacion: MediaRecorder? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -174,7 +173,67 @@ class fragment_agregar_nota : Fragment(),
         }
     }
 
+
+    private fun startRecord() {
+        createAudio()
+        if (ruteAudio != "") {
+            miGrabacion = MediaRecorder()
+            miGrabacion?.setAudioSource(MediaRecorder.AudioSource.MIC);
+            miGrabacion?.setOutputFormat(
+                MediaRecorder.OutputFormat.THREE_GPP
+            );
+            miGrabacion?.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
+            miGrabacion?.setOutputFile(ruteAudio);
+            try {
+                miGrabacion?.prepare();
+                miGrabacion?.start();
+            } catch (e: Exception) {
+                Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun stopRecord() {
+        listaRecursos.add(
+            RecursosNota(
+                ruteAudio,
+                "audio"
+            )
+        )
+        if (miGrabacion != null) {
+            miGrabacion?.stop();
+            miGrabacion?.release();
+            miGrabacion = null;
+        }
+        Toast.makeText(context, "Se detuvo la grabacion", Toast.LENGTH_LONG).show()
+        val m = MediaPlayer()
+        try {
+            m.setDataSource(ruteAudio);
+        } catch (e: Exception) {
+            e.printStackTrace();
+        }
+        try {
+            m.prepare();
+        } catch (e: IOException) {
+            e.printStackTrace();
+        }
+        m.start();
+        Toast.makeText(context, "reproducción de audio", Toast.LENGTH_LONG).show();
+    }
     var rute: String = ""
+    var ruteAudio = ""
+
+    private fun createAudio() {
+        val audioName = "audio_"
+        val directory: File? = activity.getExternalFilesDir(Environment.DIRECTORY_MUSIC)
+        val audio = File.createTempFile(
+            audioName,
+            ".3gp",
+            directory
+        )
+        ruteAudio = audio.absolutePath
+    }
+
 
     @Throws(IOException::class)
     private fun createImage(): File {
@@ -254,7 +313,7 @@ class fragment_agregar_nota : Fragment(),
         dialog?.show()
     }
 
-    private fun customDialogAudio(){
+    private fun customDialogAudio() {
         val dialog: Dialog? = context?.let {
             Dialog(it)
         }
@@ -263,10 +322,10 @@ class fragment_agregar_nota : Fragment(),
         val play: Button? = dialog?.findViewById(R.id.button_record)
         val stop: Button? = dialog?.findViewById(R.id.button_stop)
         play?.setOnClickListener {
-
+            startRecord()
         }
         stop?.setOnClickListener {
-
+            stopRecord()
         }
         dialog?.show()
     }
