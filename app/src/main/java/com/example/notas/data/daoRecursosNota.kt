@@ -28,15 +28,15 @@ class daoRecursosNota(
         }
     }
 
-    fun getAllByAudioType(id: Int): ArrayList<RecursosNota>{
+    fun getAllByAudioType(id: Int): ArrayList<RecursosNota> {
         base = database.readableDatabase
         val list: ArrayList<RecursosNota> = ArrayList()
-        try{
+        try {
             val query =
                 "SELECT * FROM ${Tabla_Recursos_nota.nombre_tabla} WHERE ${Tabla_Recursos_nota.campo_idNota} = '${id}' " +
                         "AND ${Tabla_Recursos_nota.campo_tipo} = 'audio'"
             val cursor: Cursor = base.rawQuery(query, null)
-            while (cursor.moveToNext()){
+            while (cursor.moveToNext()) {
                 list.add(
                     RecursosNota(
                         cursor.getInt(0),
@@ -46,21 +46,21 @@ class daoRecursosNota(
                 )
             }
             cursor.close()
-        }catch (e: Exception){
+        } catch (e: Exception) {
             Toast.makeText(contexto, e.message, Toast.LENGTH_LONG).show()
         }
         return list
     }
 
-    fun getAllByVideoType(id: Int): ArrayList<RecursosNota>{
+    fun getAllByVideoType(id: Int): ArrayList<RecursosNota> {
         base = database.readableDatabase
         val list: ArrayList<RecursosNota> = ArrayList()
         try {
             val query =
                 "SELECT * FROM ${Tabla_Recursos_nota.nombre_tabla} WHERE ${Tabla_Recursos_nota.campo_idNota} = '${id}' " +
                         "AND ${Tabla_Recursos_nota.campo_tipo} = 'video'"
-            val cursor: Cursor = base.rawQuery(query,null)
-            while(cursor.moveToNext()){
+            val cursor: Cursor = base.rawQuery(query, null)
+            while (cursor.moveToNext()) {
                 list.add(
                     RecursosNota(
                         cursor.getInt(0),
@@ -70,13 +70,13 @@ class daoRecursosNota(
                 )
             }
             cursor.close()
-        }catch (e: Exception){
+        } catch (e: Exception) {
             Toast.makeText(contexto, e.message, Toast.LENGTH_LONG).show()
         }
         return list
     }
 
-    fun getAllByImageType(id: Int): ArrayList<RecursosNota>{
+    fun getAllByImageType(id: Int): ArrayList<RecursosNota> {
         base = database.readableDatabase
         val list: ArrayList<RecursosNota> = ArrayList()
         try {
@@ -84,7 +84,7 @@ class daoRecursosNota(
                 "SELECT * FROM ${Tabla_Recursos_nota.nombre_tabla} WHERE ${Tabla_Recursos_nota.campo_idNota} == '${id}' " +
                         "AND ${Tabla_Recursos_nota.campo_tipo} = 'image'"
             val cursor: Cursor = base.rawQuery(query, null)
-            while (cursor.moveToNext()){
+            while (cursor.moveToNext()) {
                 list.add(
                     RecursosNota(
                         cursor.getInt(0),
@@ -94,12 +94,13 @@ class daoRecursosNota(
                 )
             }
             cursor.close()
-        }catch (e: Exception){
-            Toast.makeText(contexto,e.message,Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(contexto, e.message, Toast.LENGTH_SHORT).show()
         }
         return list
     }
-    fun getAllByFileType(id: Int): ArrayList<RecursosNota>{
+
+    fun getAllByFileType(id: Int): ArrayList<RecursosNota> {
         base = database.readableDatabase
         val list: ArrayList<RecursosNota> = ArrayList()
         try {
@@ -108,7 +109,7 @@ class daoRecursosNota(
                         "WHERE ${Tabla_Recursos_nota.campo_idNota} = '${id}' " +
                         "AND ${Tabla_Recursos_nota.campo_tipo} = 'file'"
             val cursor: Cursor = base.rawQuery(query, null)
-            while (cursor.moveToNext()){
+            while (cursor.moveToNext()) {
                 list.add(
                     RecursosNota(
                         cursor.getInt(0),
@@ -118,18 +119,19 @@ class daoRecursosNota(
                 )
             }
             cursor.close()
-        }catch (e: Exception){
+        } catch (e: Exception) {
             Toast.makeText(contexto, e.message, Toast.LENGTH_SHORT).show()
         }
-        Toast.makeText(contexto,"Files ${list.size.toString()}", Toast.LENGTH_SHORT).show()
+        Toast.makeText(contexto, "Files ${list.size.toString()}", Toast.LENGTH_SHORT).show()
         return list
     }
 
-    fun getAllById(id: Int): ArrayList<RecursosNota>{
+    fun getAllById(id: Int): ArrayList<RecursosNota> {
         base = database.readableDatabase
         val list: ArrayList<RecursosNota> = ArrayList()
         try {
-            val query: String = "SELECT * FROM ${Tabla_Recursos_nota.nombre_tabla} WHERE ${Tabla_Recursos_nota.campo_idNota} == '${id}'"
+            val query: String =
+                "SELECT * FROM ${Tabla_Recursos_nota.nombre_tabla} WHERE ${Tabla_Recursos_nota.campo_idNota} == '${id}'"
             val cursor: Cursor = base.rawQuery(query, null)
             while (cursor.moveToNext()) {
                 list.add(

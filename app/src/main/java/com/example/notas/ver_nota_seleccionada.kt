@@ -103,6 +103,13 @@ class ver_nota_seleccionada : Fragment(),
                         activity.changeFragmentViewVideoNote(verVideo)
                         return@OnMenuItemClickListener true
                     }
+                    R.id.item_view_audios -> {
+                        val verAudio = fragment_ver_audios()
+                        val bundle = Bundle()
+                        bundle.putInt("idAudio", id)
+                        verAudio.arguments = bundle
+                        activity.changeFragmentViewAudioNote(verAudio)
+                    }
                 }
                 true
             })

@@ -185,6 +185,7 @@ class fragment_agregar_nota : Fragment(),
             miGrabacion?.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
             miGrabacion?.setOutputFile(ruteAudio);
             try {
+                Toast.makeText(context, "Comenzando a grabar audio", Toast.LENGTH_LONG).show()
                 miGrabacion?.prepare();
                 miGrabacion?.start();
             } catch (e: Exception) {
@@ -220,6 +221,7 @@ class fragment_agregar_nota : Fragment(),
         m.start();
         Toast.makeText(context, "reproducción de audio", Toast.LENGTH_LONG).show();
     }
+
     var rute: String = ""
     var ruteAudio = ""
 
@@ -228,7 +230,7 @@ class fragment_agregar_nota : Fragment(),
         val directory: File? = activity.getExternalFilesDir(Environment.DIRECTORY_MUSIC)
         val audio = File.createTempFile(
             audioName,
-            ".3gp",
+            ".mp3",
             directory
         )
         ruteAudio = audio.absolutePath
