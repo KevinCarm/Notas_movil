@@ -13,4 +13,7 @@
     <item
         android:id="@+id/item_take_video"
         android:title="Grabar video"/>
+    <item
+        android:id="@+id/item_add_audio"
+        android:title="Grabar audio"/>
 </menu>

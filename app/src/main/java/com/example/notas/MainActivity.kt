@@ -69,11 +69,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
 
-
-
-
-
-
         toolBar = findViewById(R.id.toolBar)
         handler = Handler()
         setSupportActionBar(toolBar)

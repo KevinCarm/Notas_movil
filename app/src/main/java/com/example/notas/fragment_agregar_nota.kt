@@ -110,6 +110,10 @@ class fragment_agregar_nota : Fragment(),
                             takeVideo()
                             return@OnMenuItemClickListener true
                         }
+                        R.id.item_add_audio -> {
+                            customDialogAudio()
+                            return@OnMenuItemClickListener true
+                        }
                     }
                 } catch (e: Exception) {
                     Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
@@ -246,6 +250,23 @@ class fragment_agregar_nota : Fragment(),
         button?.setOnClickListener {
             saveFile(text?.text.toString())
             Snackbar.make(button, "Holi", Snackbar.LENGTH_SHORT).show()
+        }
+        dialog?.show()
+    }
+
+    private fun customDialogAudio(){
+        val dialog: Dialog? = context?.let {
+            Dialog(it)
+        }
+        dialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog?.setContentView(R.layout.dialog_custom_audio)
+        val play: Button? = dialog?.findViewById(R.id.button_record)
+        val stop: Button? = dialog?.findViewById(R.id.button_stop)
+        play?.setOnClickListener {
+
+        }
+        stop?.setOnClickListener {
+
         }
         dialog?.show()
     }
