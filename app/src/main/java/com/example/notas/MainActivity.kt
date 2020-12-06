@@ -27,7 +27,6 @@ import com.example.notas.data.daoTarea
 import com.google.android.material.navigation.NavigationView
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.jar.Manifest
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private lateinit var drawerLayout: DrawerLayout
@@ -44,8 +43,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         //Mostrar los componentes
-
-        if (ContextCompat.checkSelfPermission(
+    if (ContextCompat.checkSelfPermission(
                 applicationContext,
                 android.Manifest.permission.WRITE_EXTERNAL_STORAGE
             ) != PackageManager.PERMISSION_GRANTED &&
@@ -142,6 +140,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     fun changeFragmentViewAudioNote(obj: fragment_ver_audios){
+        try {
+            fragmentManager = supportFragmentManager
+            fragmentTransaction = fragmentManager.beginTransaction().addToBackStack(null)
+            fragmentTransaction.replace(R.id.contenedor_pequeño, obj)
+            fragmentTransaction.commit()
+        } catch (e: Exception) {
+            Toast.makeText(applicationContext, e.message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun changeFragmentViewAudioTask(obj: fragment_ver_audios_tareas){
         try {
             fragmentManager = supportFragmentManager
             fragmentTransaction = fragmentManager.beginTransaction().addToBackStack(null)
@@ -304,5 +313,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val c = Calendar.getInstance()
         return dfDate_day.format(c.time)
     }
+
 
 }

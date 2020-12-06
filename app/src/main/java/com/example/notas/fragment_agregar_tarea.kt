@@ -10,6 +10,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.MediaPlayer
+import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -59,6 +61,8 @@ class fragment_agregar_tarea : Fragment(),
     private var fecha_seleccionada = ""
     private var hora_seleccionada: String? = null
     private lateinit var listaRecursos: ArrayList<RecursosTarea>
+    private var miGrabacion: MediaRecorder? = null
+    private var ruteAudio = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -115,6 +119,10 @@ class fragment_agregar_tarea : Fragment(),
                             takeVideo()
                             return@OnMenuItemClickListener true
                         }
+                        R.id.item_add_audio -> {
+                            customDialogAudio()
+                            return@OnMenuItemClickListener true
+                        }
                     }
                 } catch (e: Exception) {
                     Toast.makeText(context, e.message, Toast.LENGTH_SHORT).show()
@@ -131,6 +139,82 @@ class fragment_agregar_tarea : Fragment(),
         }
     }
 
+    private fun customDialogAudio() {
+        val dialog: Dialog? = context?.let {
+            Dialog(it)
+        }
+        dialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog?.setContentView(R.layout.dialog_custom_audio)
+        val play: Button? = dialog?.findViewById(R.id.button_record)
+        val stop: Button? = dialog?.findViewById(R.id.button_stop)
+        play?.setOnClickListener {
+            startRecord()
+        }
+        stop?.setOnClickListener {
+            stopRecord()
+        }
+        dialog?.show()
+    }
+
+    private fun startRecord() {
+        createAudio()
+        if (ruteAudio != "") {
+            miGrabacion = MediaRecorder()
+            miGrabacion?.setAudioSource(MediaRecorder.AudioSource.MIC);
+            miGrabacion?.setOutputFormat(
+                MediaRecorder.OutputFormat.THREE_GPP
+            );
+            miGrabacion?.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
+            miGrabacion?.setOutputFile(ruteAudio);
+            try {
+                Toast.makeText(context, "Comenzando a grabar audio", Toast.LENGTH_LONG).show()
+                miGrabacion?.prepare();
+                miGrabacion?.start();
+            } catch (e: Exception) {
+                Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+    private fun stopRecord() {
+        listaRecursos.add(
+            RecursosTarea(
+                ruteAudio,
+                "audio"
+            )
+        )
+        if (miGrabacion != null) {
+            miGrabacion?.stop();
+            miGrabacion?.release();
+            miGrabacion = null;
+        }
+        Toast.makeText(context, "Se detuvo la grabacion", Toast.LENGTH_LONG).show()
+        val m = MediaPlayer()
+        try {
+            m.setDataSource(ruteAudio);
+        } catch (e: Exception) {
+            e.printStackTrace();
+        }
+        try {
+            m.prepare();
+        } catch (e: IOException) {
+            e.printStackTrace();
+        }
+        m.start();
+        Toast.makeText(context, "reproducción de audio", Toast.LENGTH_LONG).show();
+    }
+
+    private fun createAudio() {
+        val audioName = "audio_"
+        val directory: File? = activity!!.getExternalFilesDir(Environment.DIRECTORY_MUSIC)
+        val audio = File.createTempFile(
+            audioName,
+            ".mp3",
+            directory
+        )
+        ruteAudio = audio.absolutePath
+    }
+
     private fun custom_dialog() {
         val dialog: Dialog? = context?.let { Dialog(it) }
         dialog?.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -139,7 +223,7 @@ class fragment_agregar_tarea : Fragment(),
         val button: Button? = dialog?.findViewById(R.id.custom_button)
         button?.setOnClickListener {
             saveFile(text?.text.toString())
-            Snackbar.make(button,"Archivo guardado", Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(button, "Archivo guardado", Snackbar.LENGTH_SHORT).show()
         }
         dialog?.show()
     }
@@ -166,16 +250,17 @@ class fragment_agregar_tarea : Fragment(),
             startActivityForResult(intent, CAMERA_REQUEST)
         }
     }
-    private fun takeVideo(){
+
+    private fun takeVideo() {
         val intent: Intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
-        if(intent.resolveActivity(activity!!.packageManager) != null){
+        if (intent.resolveActivity(activity!!.packageManager) != null) {
             var videoFile: File? = null
             try {
                 videoFile = createVideo()
-            }catch (e: IOException){
+            } catch (e: IOException) {
                 e.printStackTrace()
             }
-            if(videoFile != null){
+            if (videoFile != null) {
                 val uriVideo: Uri? = getActivity()?.let {
                     FileProvider.getUriForFile(
                         it,
@@ -198,11 +283,12 @@ class fragment_agregar_tarea : Fragment(),
         Toast.makeText(context, rute, Toast.LENGTH_SHORT).show()
         return image
     }
+
     var videoRute = ""
     private fun createVideo(): File {
         val videoName = "video_"
-        val directory: File ? = activity!!.getExternalFilesDir(Environment.DIRECTORY_MOVIES)
-        val video = File.createTempFile(videoName,".mp4",directory)
+        val directory: File? = activity!!.getExternalFilesDir(Environment.DIRECTORY_MOVIES)
+        val video = File.createTempFile(videoName, ".mp4", directory)
         videoRute = video.absolutePath
         return video
     }
@@ -271,28 +357,29 @@ class fragment_agregar_tarea : Fragment(),
         )
     }
 
-    private fun saveFile(text: String){
+    private fun saveFile(text: String) {
         val file_name = "file_${System.currentTimeMillis()}.txt"
         var fileOutputStream: FileOutputStream? = null
         try {
             fileOutputStream = context?.openFileOutput(file_name, Context.MODE_PRIVATE)
             fileOutputStream?.write(text.toByteArray())
-            Toast.makeText(context,"${context?.filesDir}/${file_name}",Toast.LENGTH_SHORT).show()
-        }catch (e: IOException){
+            Toast.makeText(context, "${context?.filesDir}/${file_name}", Toast.LENGTH_SHORT).show()
+        } catch (e: IOException) {
             e.printStackTrace()
-        }finally {
-            if(fileOutputStream != null){
+        } finally {
+            if (fileOutputStream != null) {
                 try {
-                    listaRecursos.add(RecursosTarea(file_name,"file"))
+                    listaRecursos.add(RecursosTarea(file_name, "file"))
                     fileOutputStream.close()
-                }catch (e: IOException){
+                } catch (e: IOException) {
 
                 }
             }
         }
-        Toast.makeText(context,readFile(file_name), Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, readFile(file_name), Toast.LENGTH_SHORT).show()
     }
-    private fun readFile(name: String): String{
+
+    private fun readFile(name: String): String {
         var fileInputStream: FileInputStream? = null
         var stringBuilder = StringBuilder()
         try {
@@ -301,14 +388,14 @@ class fragment_agregar_tarea : Fragment(),
             var buffereader: BufferedReader = BufferedReader(inputStreamReader)
             var texto: String? = ""
             stringBuilder = StringBuilder()
-            while(texto != null){
+            while (texto != null) {
                 texto = buffereader.readLine()
-                if(texto != null){
+                if (texto != null) {
                     stringBuilder.append(texto).append("\n")
-                }else
+                } else
                     break
             }
-        }catch (e: IOException){
+        } catch (e: IOException) {
 
         }
         return stringBuilder.toString()
@@ -323,7 +410,7 @@ class fragment_agregar_tarea : Fragment(),
         }
         if (requestCode == CAMERA_REQUEST && resultCode == Activity.RESULT_OK) {
             val bit: Bitmap = BitmapFactory.decodeFile(rute)
-            listaRecursos.add(RecursosTarea(rute,"image"))
+            listaRecursos.add(RecursosTarea(rute, "image"))
 
         }
         if (requestCode == VIDEO_REQUEST && resultCode == Activity.RESULT_OK) {

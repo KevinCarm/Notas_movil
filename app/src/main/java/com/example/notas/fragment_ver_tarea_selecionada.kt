@@ -107,6 +107,14 @@ class fragment_ver_tarea_selecionada : Fragment(),
                         mainActivity.changeFragmentViewVideoTask(videoTarea)
                         return@OnMenuItemClickListener true
                     }
+                    R.id.item_view_audios -> {
+                        val audioTarea = fragment_ver_audios_tareas()
+                        val bundle = Bundle()
+                        bundle.putInt("idAudio", obj.idTarea)
+                        audioTarea.arguments = bundle
+                        mainActivity.changeFragmentViewAudioTask(audioTarea)
+                        return@OnMenuItemClickListener true
+                    }
                  }
                 true
             })
