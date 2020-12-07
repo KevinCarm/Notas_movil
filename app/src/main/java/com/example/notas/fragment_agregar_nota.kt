@@ -22,7 +22,9 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import androidx.recyclerview.widget.RecyclerView
 import com.example.notas.data.RecursosNota
+import com.example.notas.data.RecursosTarea
 import com.example.notas.data.daoNota
 import com.example.notas.data.daoRecursosNota
 import com.google.android.material.snackbar.Snackbar
@@ -53,7 +55,9 @@ class fragment_agregar_nota : Fragment(),
     private lateinit var floating: com.google.android.material.floatingactionbutton.FloatingActionButton
     private lateinit var activity: MainActivity
     private lateinit var listaRecursos: ArrayList<RecursosNota>
+    private lateinit var listaRecursos2: ArrayList<RecursosNota>
     private var miGrabacion: MediaRecorder? = null
+    private var recyclerView: RecyclerView? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -78,6 +82,20 @@ class fragment_agregar_nota : Fragment(),
 
         initialize(vista)
         return vista
+    }
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putSerializable("recursos",listaRecursos)
+
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        if (savedInstanceState!=null){
+            if (savedInstanceState.getSerializable("recursos")!=null){
+                listaRecursos= savedInstanceState.getSerializable("recursos") as ArrayList<RecursosNota>
+            }
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -185,7 +203,6 @@ class fragment_agregar_nota : Fragment(),
             miGrabacion?.setAudioEncoder(MediaRecorder.OutputFormat.AMR_NB);
             miGrabacion?.setOutputFile(ruteAudio);
             try {
-                Toast.makeText(context, "Comenzando a grabar audio", Toast.LENGTH_LONG).show()
                 miGrabacion?.prepare();
                 miGrabacion?.start();
             } catch (e: Exception) {
@@ -221,7 +238,6 @@ class fragment_agregar_nota : Fragment(),
         m.start();
         Toast.makeText(context, "reproducción de audio", Toast.LENGTH_LONG).show();
     }
-
     var rute: String = ""
     var ruteAudio = ""
 
@@ -230,7 +246,7 @@ class fragment_agregar_nota : Fragment(),
         val directory: File? = activity.getExternalFilesDir(Environment.DIRECTORY_MUSIC)
         val audio = File.createTempFile(
             audioName,
-            ".mp3",
+            ".3gp",
             directory
         )
         ruteAudio = audio.absolutePath

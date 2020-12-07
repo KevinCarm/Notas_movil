@@ -83,6 +83,21 @@ class fragment_agregar_tarea : Fragment(),
         return vista
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putSerializable("recursos",listaRecursos)
+
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        if (savedInstanceState!=null){
+            if (savedInstanceState.getSerializable("recursos")!=null){
+                listaRecursos= savedInstanceState.getSerializable("recursos") as ArrayList<RecursosTarea>
+            }
+        }
+    }
+
     private fun initialize(root: View) {
         listaRecursos = ArrayList<RecursosTarea>()
         title = root.findViewById(R.id.txtTitleTask)
