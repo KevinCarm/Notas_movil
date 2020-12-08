@@ -33,7 +33,8 @@ class daoRecursosNota(
         val list: ArrayList<RecursosNota> = ArrayList()
         try {
             val query =
-                "SELECT * FROM ${Tabla_Recursos_nota.nombre_tabla} WHERE ${Tabla_Recursos_nota.campo_idNota} = '${id}' " +
+                "SELECT * FROM ${Tabla_Recursos_nota.nombre_tabla} " +
+                        "WHERE ${Tabla_Recursos_nota.campo_idNota} = '${id}' " +
                         "AND ${Tabla_Recursos_nota.campo_tipo} = 'audio'"
             val cursor: Cursor = base.rawQuery(query, null)
             while (cursor.moveToNext()) {

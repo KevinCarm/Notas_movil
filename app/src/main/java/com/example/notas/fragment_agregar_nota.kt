@@ -326,7 +326,7 @@ class fragment_agregar_nota : Fragment(),
         val button: Button? = dialog?.findViewById(R.id.custom_button)
         button?.setOnClickListener {
             saveFile(text?.text.toString())
-            Snackbar.make(button, "Holi", Snackbar.LENGTH_SHORT).show()
+
         }
         dialog?.show()
     }

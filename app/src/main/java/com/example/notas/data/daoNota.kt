@@ -29,14 +29,17 @@ class daoNota(
         }
     }
 
-    fun getAll(): ArrayList<Nota>?{
+    fun getAll(): ArrayList<Nota> {
         base = database.readableDatabase
         val listaNotas: ArrayList<Nota> = ArrayList()
         try{
             val readQuery: String = "SELECT * FROM ${Tabla_nota.nombre_tabla}"
             val cursor: Cursor =  base.rawQuery(readQuery,null)
             while(cursor.moveToNext()){
-                listaNotas.add(Nota(cursor.getInt(0),cursor.getString(1),cursor.getString(2)))
+                listaNotas.add(Nota(
+                    cursor.getInt(0),
+                    cursor.getString(1),
+                    cursor.getString(2)))
             }
             cursor.close()
         }catch (e: Exception){
@@ -52,7 +55,10 @@ class daoNota(
                 "WHERE ${Tabla_nota.campo_id} = '${id}'"
         val cursor: Cursor = base.rawQuery(readQuery,null)
         if(cursor.moveToNext()){
-            return Nota(cursor.getInt(0),cursor.getString(1),cursor.getString(2))
+            return Nota(
+                cursor.getInt(0),
+                cursor.getString(1),
+                cursor.getString(2))
         }else{
             return null
         }
