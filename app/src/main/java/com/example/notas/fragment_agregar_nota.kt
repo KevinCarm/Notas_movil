@@ -55,9 +55,7 @@ class fragment_agregar_nota : Fragment(),
     private lateinit var floating: com.google.android.material.floatingactionbutton.FloatingActionButton
     private lateinit var activity: MainActivity
     private lateinit var listaRecursos: ArrayList<RecursosNota>
-    private lateinit var listaRecursos2: ArrayList<RecursosNota>
     private var miGrabacion: MediaRecorder? = null
-    private var recyclerView: RecyclerView? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -142,6 +140,7 @@ class fragment_agregar_nota : Fragment(),
         btnSave.setOnClickListener {
             addNote()
             addResourcesToDB()
+            getActivity()?.onBackPressed();
         }
     }
 

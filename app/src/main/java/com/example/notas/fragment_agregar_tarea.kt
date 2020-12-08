@@ -109,6 +109,7 @@ class fragment_agregar_tarea : Fragment(),
         btnAccept.setOnClickListener {
             addTaskToDataBase()
             addResourcesToDB()
+            getActivity()?.onBackPressed();
         }
         floating.setOnClickListener {
             val popup: PopupMenu = PopupMenu(

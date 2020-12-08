@@ -7,12 +7,10 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.PopupMenu
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import com.example.notas.data.daoTarea
 import com.example.notas_001.datos.Tarea
+import kotlinx.android.synthetic.main.fragment_ver_tarea_selecionada.*
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -34,7 +32,10 @@ class fragment_ver_tarea_selecionada : Fragment(),
     private lateinit var description: EditText
     private lateinit var date: TextView
     private lateinit var mainActivity: MainActivity
+    private lateinit var btnAccept: Button
+    private lateinit var btnCancel: Button
     private lateinit var floating: com.google.android.material.floatingactionbutton.FloatingActionButton
+    private lateinit var floating2: com.google.android.material.floatingactionbutton.FloatingActionButton
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -77,6 +78,10 @@ class fragment_ver_tarea_selecionada : Fragment(),
         title = root.findViewById(R.id.txtTitleViewTask)
         description = root.findViewById(R.id.txtDescriptionViewTask)
         date = root.findViewById(R.id.lbDateViewTast)
+        btnAccept=root.findViewById(R.id.btnaceptar)
+        btnAccept.setOnClickListener(View.OnClickListener {
+            getActivity()?.onBackPressed();
+        })
         floating = root.findViewById(R.id.floatingViewTask)
         floating.setOnClickListener {
             val popup: PopupMenu = PopupMenu(activity,floating)

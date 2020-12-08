@@ -68,7 +68,7 @@ class ver_nota_seleccionada : Fragment(),
         description = root.findViewById(R.id.txtViewDescriptionNote)
         btnAccept = root.findViewById(R.id.btnViewAcceptNote)
         btnAccept.setOnClickListener {
-
+            getActivity()?.onBackPressed();
         }
         floating.setOnClickListener {
             val popup: PopupMenu = PopupMenu(activity, floating)
