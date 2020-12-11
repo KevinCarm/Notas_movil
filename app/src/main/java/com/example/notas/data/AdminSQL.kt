@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper
 class AdminSQL(
     context: Context?
 ) : SQLiteOpenHelper(context, "notasTareas", null, 1) {
-F
+
     override fun onCreate(baseDatos: SQLiteDatabase?) {
         val query_tarea: String? = "CREATE TABLE ${Tabla_tarea.nombre_tabla} (" +
                 "${Tabla_tarea.campo_id} INTEGER PRIMARY KEY AUTOINCREMENT," +
